@@ -55,7 +55,7 @@
             </p>
 
 
-            <!-- GOOGLE LOGIN -->
+            <!-- GOOGLE LOGIN BUTTON -->
 
             <button
                 id="googleLogin"
@@ -72,7 +72,7 @@
             </button>
 
 
-            <!-- STATUS -->
+            <!-- LOGIN STATUS -->
 
             <div
                 id="loginMessage"
@@ -81,8 +81,6 @@
                 Loading Firebase...
             </div>
 
-
-            <!-- BACK -->
 
             <a
                 href="./index.html"
@@ -106,9 +104,6 @@
         class="admin-panel"
         style="display:none;"
     >
-
-
-        <!-- NAVBAR -->
 
         <header class="admin-navbar">
 
@@ -146,10 +141,6 @@
 
 
 
-        <!-- =================================================
-             CONTENT
-        ================================================== -->
-
         <div class="admin-container">
 
 
@@ -175,9 +166,7 @@
 
 
 
-            <!-- =================================================
-                 CREATE POLL
-            ================================================== -->
+            <!-- CREATE POLL -->
 
             <section
                 class="create-section"
@@ -207,10 +196,7 @@
                 </div>
 
 
-
-                <label
-                    for="pollQuestion"
-                >
+                <label for="pollQuestion">
                     Poll Question
                 </label>
 
@@ -223,10 +209,7 @@
                 >
 
 
-
-                <label
-                    for="pollOptions"
-                >
+                <label for="pollOptions">
                     Poll Options
                 </label>
 
@@ -239,10 +222,8 @@
 
 
                 <div class="input-hint">
-
                     Enter one option per line.
                     At least 2 options are required.
-
                 </div>
 
 
@@ -258,9 +239,7 @@
 
 
 
-            <!-- =================================================
-                 EXISTING POLLS
-            ================================================== -->
+            <!-- EXISTING POLLS -->
 
             <section
                 class="poll-management"
@@ -302,12 +281,12 @@
 
 
                         <h3>
-                            Waiting for Firebase...
+                            Loading Polls...
                         </h3>
 
 
                         <p>
-                            Please wait.
+                            Waiting for Firebase...
                         </p>
 
                     </div>
@@ -331,7 +310,6 @@
 
             </div>
 
-
         </div>
 
     </main>
@@ -339,51 +317,15 @@
 
 
     <!-- =====================================================
-         JAVASCRIPT LOAD TEST
-    ====================================================== -->
-
-    <script>
-
-        console.log(
-            "SKYLARK: admin.html loaded"
-        );
-
-
-        window.addEventListener(
-            "error",
-            function(event) {
-
-                const message =
-                    document.getElementById(
-                        "loginMessage"
-                    );
-
-                if (message) {
-
-                    message.textContent =
-                        "❌ JavaScript Error: " +
-                        event.message;
-
-                }
-
-            }
-        );
-
-    </script>
-
-
-
-    <!-- =====================================================
-         FIREBASE / ADMIN SCRIPT
+         ADMIN JAVASCRIPT
+         
+         IMPORTANT:
+         admin.html and admin.js MUST BE IN THE SAME FOLDER.
     ====================================================== -->
 
     <script
         type="module"
         src="./admin.js"
-        onerror="
-            document.getElementById('loginMessage').textContent =
-            '❌ Could not load admin.js';
-        "
     ></script>
 
 
