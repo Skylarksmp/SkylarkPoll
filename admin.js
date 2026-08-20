@@ -1,8 +1,3 @@
-/* =====================================================
-   SKYLARK POLL ADMIN
-   FIREBASE GOOGLE LOGIN
-===================================================== */
-
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -45,17 +40,37 @@ const firebaseConfig = {
    INITIALIZE FIREBASE
 ===================================================== */
 
-const app = initializeApp(firebaseConfig);
+let app;
+let auth;
+let db;
+let provider;
 
-const auth = getAuth(app);
+try {
 
-const db = getFirestore(app);
+    app = initializeApp(firebaseConfig);
 
-const provider = new GoogleAuthProvider();
+    auth = getAuth(app);
+
+    db = getFirestore(app);
+
+    provider = new GoogleAuthProvider();
+
+    provider.setCustomParameters({
+        prompt: "select_account"
+    });
+
+} catch (error) {
+
+    console.error(
+        "FIREBASE INITIALIZATION ERROR:",
+        error
+    );
+
+}
 
 
 /* =====================================================
-   AUTHORIZED ADMINS
+   ADMIN EMAILS
 ===================================================== */
 
 const ADMIN_EMAILS = [
@@ -102,13 +117,38 @@ const adminPolls =
 
 
 /* =====================================================
-   CHECK ADMIN
+   MESSAGE
+===================================================== */
+
+function showMessage(message) {
+
+    if (loginMessage) {
+
+        loginMessage.textContent =
+            message;
+
+    }
+
+    console.log(
+        "SKYLARK ADMIN:",
+        message
+    );
+
+}
+
+
+/* =====================================================
+   ADMIN CHECK
 ===================================================== */
 
 function isAdmin(email) {
 
+    if (!email) {
+        return false;
+    }
+
     return ADMIN_EMAILS.includes(
-        email.toLowerCase()
+        email.toLowerCase().trim()
     );
 
 }
@@ -132,10 +172,28 @@ function showLogin() {
 
 
 /* =====================================================
-   SHOW ADMIN
+   SHOW ADMIN PANEL
 ===================================================== */
 
 function showAdmin(user) {
+
+    if (!user || !user.email) {
+        return;
+    }
+
+    if (!isAdmin(user.email)) {
+
+        showMessage(
+            "❌ This Google account is not an authorized Skylark admin."
+        );
+
+        signOut(auth);
+
+        showLogin();
+
+        return;
+    }
+
 
     if (loginScreen) {
         loginScreen.style.display = "none";
@@ -146,8 +204,10 @@ function showAdmin(user) {
     }
 
     if (adminEmail) {
-        adminEmail.textContent = user.email;
+        adminEmail.textContent =
+            user.email;
     }
+
 
     loadPolls();
 
@@ -164,17 +224,34 @@ if (googleLogin) {
         "click",
         async () => {
 
+            console.log(
+                "Google Login button clicked"
+            );
+
+
+            if (!auth || !provider) {
+
+                showMessage(
+                    "❌ Firebase failed to initialize. Check admin.js."
+                );
+
+                return;
+
+            }
+
+
+            googleLogin.disabled = true;
+
+            googleLogin.textContent =
+                "Opening Google...";
+
+
+            showMessage(
+                "🔄 Opening Google login..."
+            );
+
+
             try {
-
-                googleLogin.disabled = true;
-
-                googleLogin.textContent =
-                    "Redirecting to Google...";
-
-                if (loginMessage) {
-                    loginMessage.textContent =
-                        "Opening Google sign-in...";
-                }
 
                 await signInWithRedirect(
                     auth,
@@ -188,14 +265,14 @@ if (googleLogin) {
                     error
                 );
 
-                if (loginMessage) {
 
-                    loginMessage.textContent =
-                        error.code +
-                        ": " +
-                        error.message;
+                showMessage(
+                    "❌ " +
+                    error.code +
+                    ": " +
+                    error.message
+                );
 
-                }
 
                 googleLogin.disabled = false;
 
@@ -207,106 +284,151 @@ if (googleLogin) {
         }
     );
 
+} else {
+
+    console.error(
+        "ERROR: #googleLogin was not found in admin.html"
+    );
+
 }
 
 
 /* =====================================================
-   HANDLE REDIRECT RESULT
+   HANDLE GOOGLE REDIRECT
 ===================================================== */
 
-getRedirectResult(auth)
+if (auth) {
 
-    .then((result) => {
+    getRedirectResult(auth)
 
-        if (!result) {
-            return;
-        }
+        .then(
+            (result) => {
 
-        const user = result.user;
+                if (!result) {
+                    return;
+                }
 
-        if (!user.email) {
-            return;
-        }
 
-        if (!isAdmin(user.email)) {
+                console.log(
+                    "Google redirect successful"
+                );
 
-            signOut(auth);
 
-            showLogin();
+                const user =
+                    result.user;
 
-            if (loginMessage) {
 
-                loginMessage.textContent =
-                    "❌ This Google account is not an authorized Skylark admin.";
+                if (
+                    !user ||
+                    !user.email
+                ) {
+
+                    showMessage(
+                        "❌ Google account information was not received."
+                    );
+
+                    return;
+
+                }
+
+
+                console.log(
+                    "Signed in as:",
+                    user.email
+                );
+
+
+                if (!isAdmin(user.email)) {
+
+                    showMessage(
+                        "❌ Unauthorized Google account: " +
+                        user.email
+                    );
+
+
+                    return signOut(auth);
+
+                }
+
+
+                showAdmin(user);
 
             }
+        )
 
-            return;
-        }
+        .catch(
+            (error) => {
 
-        showAdmin(user);
+                console.error(
+                    "REDIRECT RESULT ERROR:",
+                    error
+                );
 
-    })
 
-    .catch((error) => {
+                showMessage(
+                    "❌ " +
+                    error.code +
+                    ": " +
+                    error.message
+                );
 
-        console.error(
-            "REDIRECT LOGIN ERROR:",
-            error
+            }
         );
 
-        if (loginMessage) {
-
-            loginMessage.textContent =
-                error.code +
-                ": " +
-                error.message;
-
-        }
-
-    });
+}
 
 
 /* =====================================================
    AUTH STATE
 ===================================================== */
 
-onAuthStateChanged(
-    auth,
-    (user) => {
+if (auth) {
 
-        if (!user) {
+    onAuthStateChanged(
+        auth,
+        (user) => {
 
-            showLogin();
+            console.log(
+                "Auth state:",
+                user
+                    ? user.email
+                    : "No user"
+            );
 
-            return;
 
-        }
+            if (!user) {
 
-        if (
-            !user.email ||
-            !isAdmin(user.email)
-        ) {
+                showLogin();
 
-            signOut(auth);
-
-            showLogin();
-
-            if (loginMessage) {
-
-                loginMessage.textContent =
-                    "❌ Unauthorized account.";
+                return;
 
             }
 
-            return;
+
+            if (
+                !user.email ||
+                !isAdmin(user.email)
+            ) {
+
+                showLogin();
+
+                showMessage(
+                    "❌ Unauthorized account."
+                );
+
+                signOut(auth);
+
+                return;
+
+            }
+
+
+            showAdmin(user);
 
         }
+    );
 
-        showAdmin(user);
-
-    }
-);
+}
 
 
 /* =====================================================
@@ -325,11 +447,22 @@ if (logoutButton) {
 
                 showLogin();
 
+                showMessage(
+                    "You have been logged out."
+                );
+
             } catch (error) {
 
                 console.error(
                     "LOGOUT ERROR:",
                     error
+                );
+
+                showMessage(
+                    "❌ " +
+                    error.code +
+                    ": " +
+                    error.message
                 );
 
             }
@@ -350,21 +483,54 @@ if (createPollButton) {
         "click",
         async () => {
 
-            const question =
-                pollQuestion.value.trim();
-
-            const optionsText =
-                pollOptions.value.trim();
-
-            if (!question) {
+            if (!auth.currentUser) {
 
                 alert(
-                    "Enter a poll question."
+                    "You must be logged in as an admin."
                 );
 
                 return;
 
             }
+
+
+            if (
+                !isAdmin(
+                    auth.currentUser.email
+                )
+            ) {
+
+                alert(
+                    "You are not authorized."
+                );
+
+                return;
+
+            }
+
+
+            const question =
+                pollQuestion
+                    ? pollQuestion.value.trim()
+                    : "";
+
+
+            const optionsText =
+                pollOptions
+                    ? pollOptions.value.trim()
+                    : "";
+
+
+            if (!question) {
+
+                alert(
+                    "Please enter a poll question."
+                );
+
+                return;
+
+            }
+
 
             const optionLines =
                 optionsText
@@ -378,23 +544,31 @@ if (createPollButton) {
                             option.length > 0
                     );
 
-            if (optionLines.length < 2) {
+
+            if (
+                optionLines.length < 2
+            ) {
 
                 alert(
-                    "You need at least 2 options."
+                    "Please enter at least 2 options."
                 );
 
                 return;
 
             }
 
+
             const options =
                 optionLines.map(
                     option => ({
+
                         text: option,
+
                         votes: 0
+
                     })
                 );
+
 
             try {
 
@@ -404,29 +578,47 @@ if (createPollButton) {
                 createPollButton.textContent =
                     "Creating...";
 
+
                 await addDoc(
+
                     collection(
                         db,
                         "polls"
                     ),
+
                     {
-                        question: question,
-                        options: options,
-                        active: true,
+
+                        question:
+                            question,
+
+                        options:
+                            options,
+
+                        active:
+                            true,
+
                         createdAt:
                             serverTimestamp(),
+
                         createdBy:
                             auth.currentUser.email
+
                     }
+
                 );
 
-                pollQuestion.value = "";
 
-                pollOptions.value = "";
+                pollQuestion.value =
+                    "";
+
+                pollOptions.value =
+                    "";
+
 
                 alert(
-                    "✅ Poll created!"
+                    "✅ Poll created successfully!"
                 );
+
 
             } catch (error) {
 
@@ -435,7 +627,9 @@ if (createPollButton) {
                     error
                 );
 
+
                 alert(
+                    "❌ " +
                     error.code +
                     ": " +
                     error.message
@@ -467,33 +661,63 @@ function loadPolls() {
         return;
     }
 
+
+    if (!db) {
+
+        adminPolls.innerHTML = `
+            <div class="empty-polls">
+                <h3>❌ Firebase Error</h3>
+                <p>Firestore could not initialize.</p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
     const pollsRef =
         collection(
             db,
             "polls"
         );
 
+
     onSnapshot(
+
         pollsRef,
+
         (snapshot) => {
 
-            adminPolls.innerHTML = "";
+            adminPolls.innerHTML =
+                "";
+
 
             if (snapshot.empty) {
 
                 adminPolls.innerHTML = `
+
                     <div class="empty-polls">
-                        <h3>No Polls</h3>
-                        <p>Create your first Skylark poll.</p>
+
+                        <h3>
+                            No Polls Yet
+                        </h3>
+
+                        <p>
+                            Create your first Skylark poll.
+                        </p>
+
                     </div>
+
                 `;
 
                 return;
 
             }
 
+
             snapshot.forEach(
-                pollDoc => {
+                (pollDoc) => {
 
                     displayPoll(
                         pollDoc.id,
@@ -504,21 +728,41 @@ function loadPolls() {
             );
 
         },
+
         (error) => {
 
             console.error(
-                "LOAD POLLS ERROR:",
+                "FIRESTORE LOAD ERROR:",
                 error
             );
 
+
             adminPolls.innerHTML = `
+
                 <div class="empty-polls">
-                    <h3>⚠️ Failed to load polls</h3>
-                    <p>${escapeHTML(error.message)}</p>
+
+                    <h3>
+                        ❌ Firestore Error
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(
+                            error.code
+                        )}
+                    </p>
+
+                    <p>
+                        ${escapeHTML(
+                            error.message
+                        )}
+                    </p>
+
                 </div>
+
             `;
 
         }
+
     );
 
 }
@@ -534,45 +778,72 @@ function displayPoll(
 ) {
 
     const options =
-        Array.isArray(poll.options)
+        Array.isArray(
+            poll.options
+        )
             ? poll.options
             : [];
 
+
     const totalVotes =
         options.reduce(
-            (total, option) =>
-                total +
-                Number(option.votes || 0),
+            (
+                total,
+                option
+            ) => {
+
+                return (
+                    total +
+                    Number(
+                        option.votes || 0
+                    )
+                );
+
+            },
             0
         );
 
+
     const card =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     card.className =
         "admin-poll-card";
 
-    let optionsHTML = "";
+
+    let optionsHTML =
+        "";
+
 
     options.forEach(
         option => {
 
             optionsHTML += `
+
                 <div class="admin-option">
 
                     <span>
-                        ${escapeHTML(option.text)}
+                        ${escapeHTML(
+                            option.text
+                        )}
                     </span>
 
                     <strong>
-                        ${Number(option.votes || 0)}
+                        ${Number(
+                            option.votes || 0
+                        )}
                     </strong>
 
                 </div>
+
             `;
 
         }
     );
+
 
     card.innerHTML = `
 
@@ -581,27 +852,45 @@ function displayPoll(
             <div>
 
                 <span class="poll-status">
-                    ${poll.active ? "ACTIVE" : "CLOSED"}
+
+                    ${
+                        poll.active
+                            ? "ACTIVE"
+                            : "CLOSED"
+                    }
+
                 </span>
 
+
                 <h3>
-                    ${escapeHTML(poll.question)}
+
+                    ${escapeHTML(
+                        poll.question
+                    )}
+
                 </h3>
 
             </div>
 
+
             <button
                 class="delete-poll"
-                data-id="${id}"
+                type="button"
             >
+
                 Delete
+
             </button>
 
         </div>
 
+
         <div class="admin-options">
+
             ${optionsHTML}
+
         </div>
+
 
         <div class="admin-total">
 
@@ -615,16 +904,25 @@ function displayPoll(
 
     `;
 
-    adminPolls.appendChild(card);
+
+    adminPolls.appendChild(
+        card
+    );
+
 
     const deleteButton =
         card.querySelector(
             ".delete-poll"
         );
 
+
     deleteButton.addEventListener(
         "click",
-        () => deletePoll(id)
+        () => {
+
+            deletePoll(id);
+
+        }
     );
 
 }
@@ -638,23 +936,40 @@ async function deletePoll(
     pollId
 ) {
 
-    if (
-        !confirm(
-            "Delete this poll?\n\nThis cannot be undone."
-        )
-    ) {
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this poll?\n\nThis cannot be undone."
+        );
+
+
+    if (!confirmed) {
         return;
     }
+
+
+    if (!auth.currentUser) {
+
+        alert(
+            "You are not logged in."
+        );
+
+        return;
+
+    }
+
 
     try {
 
         await deleteDoc(
+
             doc(
                 db,
                 "polls",
                 pollId
             )
+
         );
+
 
         alert(
             "✅ Poll deleted."
@@ -667,7 +982,9 @@ async function deletePoll(
             error
         );
 
+
         alert(
+            "❌ " +
             error.code +
             ": " +
             error.message
@@ -682,13 +999,50 @@ async function deletePoll(
    ESCAPE HTML
 ===================================================== */
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   INITIAL MESSAGE
+===================================================== */
+
+if (
+    loginMessage &&
+    !auth
+) {
+
+    loginMessage.textContent =
+        "❌ Firebase failed to initialize.";
 
 }
