@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="admin.css"
+        href="./admin.css"
     >
 
 </head>
@@ -23,7 +23,9 @@
 <body>
 
 
-    <!-- LOGIN SCREEN -->
+    <!-- =====================================================
+         LOGIN SCREEN
+    ====================================================== -->
 
     <section
         id="loginScreen"
@@ -36,13 +38,16 @@
                 🛡️
             </div>
 
+
             <div class="small-title">
                 SKYLARK NETWORK
             </div>
 
+
             <h1>
                 Admin Panel
             </h1>
+
 
             <p>
                 Sign in with an authorized Google account
@@ -50,7 +55,7 @@
             </p>
 
 
-            <!-- GOOGLE LOGIN -->
+            <!-- GOOGLE LOGIN BUTTON -->
 
             <button
                 id="googleLogin"
@@ -67,7 +72,7 @@
             </button>
 
 
-            <!-- LOGIN STATUS -->
+            <!-- LOGIN MESSAGE -->
 
             <div
                 id="loginMessage"
@@ -76,6 +81,8 @@
                 Ready to login...
             </div>
 
+
+            <!-- BACK -->
 
             <a
                 href="index.html"
@@ -90,7 +97,9 @@
 
 
 
-    <!-- ADMIN PANEL -->
+    <!-- =====================================================
+         ADMIN PANEL
+    ====================================================== -->
 
     <main
         id="adminPanel"
@@ -122,6 +131,7 @@
                     Admin
                 </span>
 
+
                 <button
                     id="logoutButton"
                     class="logout-button"
@@ -136,7 +146,9 @@
 
 
 
-        <!-- CONTENT -->
+        <!-- =================================================
+             ADMIN CONTENT
+        ================================================== -->
 
         <div class="admin-container">
 
@@ -149,21 +161,27 @@
                     SKYLARK NETWORK
                 </span>
 
+
                 <h1>
                     Poll Management
                 </h1>
 
+
                 <p>
-                    Create and manage community polls.
+                    Create and manage Skylark community polls.
                 </p>
 
             </div>
 
 
 
-            <!-- CREATE POLL -->
+            <!-- =================================================
+                 CREATE POLL
+            ================================================== -->
 
-            <section class="create-section">
+            <section
+                class="create-section"
+            >
 
                 <div class="section-heading">
 
@@ -171,11 +189,13 @@
                         🗳️
                     </div>
 
+
                     <div>
 
                         <h2>
                             Create New Poll
                         </h2>
+
 
                         <p>
                             Create a question and add
@@ -187,7 +207,10 @@
                 </div>
 
 
-                <label for="pollQuestion">
+
+                <label
+                    for="pollQuestion"
+                >
                     Poll Question
                 </label>
 
@@ -200,7 +223,10 @@
                 >
 
 
-                <label for="pollOptions">
+
+                <label
+                    for="pollOptions"
+                >
                     Poll Options
                 </label>
 
@@ -213,8 +239,10 @@
 
 
                 <div class="input-hint">
+
                     Enter one option per line.
                     At least 2 options are required.
+
                 </div>
 
 
@@ -230,9 +258,13 @@
 
 
 
-            <!-- EXISTING POLLS -->
+            <!-- =================================================
+                 EXISTING POLLS
+            ================================================== -->
 
-            <section class="poll-management">
+            <section
+                class="poll-management"
+            >
 
                 <div class="section-heading">
 
@@ -240,11 +272,13 @@
                         📊
                     </div>
 
+
                     <div>
 
                         <h2>
                             Existing Polls
                         </h2>
+
 
                         <p>
                             View votes and manage polls.
@@ -266,9 +300,11 @@
                             🗳️
                         </div>
 
+
                         <h3>
                             Loading Polls...
                         </h3>
+
 
                         <p>
                             Connecting to Firebase...
@@ -295,13 +331,42 @@
 
             </div>
 
+
         </div>
 
     </main>
 
 
 
-    <!-- ADMIN JAVASCRIPT -->
+    <!-- =====================================================
+         HTML TEST
+    ====================================================== -->
+
+    <script>
+
+        console.log(
+            "SKYLARK ADMIN HTML LOADED"
+        );
+
+        const testMessage =
+            document.getElementById(
+                "loginMessage"
+            );
+
+        if (testMessage) {
+
+            testMessage.textContent =
+                "HTML loaded — waiting for Firebase...";
+
+        }
+
+    </script>
+
+
+
+    <!-- =====================================================
+         ADMIN JAVASCRIPT
+    ====================================================== -->
 
     <script
         type="module"
