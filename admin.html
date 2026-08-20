@@ -17,64 +17,45 @@
         href="admin.css"
     >
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
 </head>
 
 
 <body>
 
 
-    <!-- BACKGROUND -->
-
-    <div class="background-glow glow-one"></div>
-    <div class="background-glow glow-two"></div>
-
-
-
     <!-- LOGIN SCREEN -->
 
     <section
-        class="login-screen"
         id="loginScreen"
+        class="login-screen"
     >
 
         <div class="login-card">
 
-            <div class="logo-icon">
-                SLK
+            <div class="login-icon">
+                🛡️
             </div>
 
+            <div class="small-title">
+                SKYLARK NETWORK
+            </div>
 
             <h1>
-                Skylark
-                <span>Poll Admin</span>
+                Admin Panel
             </h1>
 
-
             <p>
-                Sign in with your authorized
-                Skylark administrator account.
+                Sign in with an authorized Google account
+                to manage Skylark polls.
             </p>
 
 
+            <!-- GOOGLE LOGIN -->
+
             <button
-                class="google-button"
-                id="googleLoginButton"
+                id="googleLogin"
+                class="google-login"
+                type="button"
             >
 
                 <span class="google-icon">
@@ -86,10 +67,22 @@
             </button>
 
 
-            <p
-                class="login-message"
+            <!-- LOGIN STATUS -->
+
+            <div
                 id="loginMessage"
-            ></p>
+                class="login-message"
+            >
+                Ready to login...
+            </div>
+
+
+            <a
+                href="index.html"
+                class="back-link"
+            >
+                ← Back to Poll
+            </a>
 
         </div>
 
@@ -100,48 +93,39 @@
     <!-- ADMIN PANEL -->
 
     <main
-        class="admin-panel"
         id="adminPanel"
+        class="admin-panel"
         style="display:none;"
     >
 
 
-        <!-- HEADER -->
+        <!-- NAVBAR -->
 
-        <header class="admin-header">
+        <header class="admin-navbar">
 
-            <div>
+            <div class="admin-logo">
 
-                <span class="small-label">
-                    SKYLARK NETWORK
+                <div class="logo-icon">
+                    SLK
+                </div>
+
+                <span>
+                    SKYLARK ADMIN
                 </span>
-
-                <h1>
-                    Poll
-                    <span>Admin</span>
-                </h1>
 
             </div>
 
 
-            <div class="admin-account">
+            <div class="admin-user">
 
-                <div>
-
-                    <strong id="adminName">
-                        Admin
-                    </strong>
-
-                    <small id="adminEmail">
-                        admin@email.com
-                    </small>
-
-                </div>
-
+                <span id="adminEmail">
+                    Admin
+                </span>
 
                 <button
-                    class="logout-button"
                     id="logoutButton"
+                    class="logout-button"
+                    type="button"
                 >
                     Logout
                 </button>
@@ -152,256 +136,176 @@
 
 
 
-        <!-- CREATE POLL -->
+        <!-- CONTENT -->
 
-        <section class="admin-card">
+        <div class="admin-container">
 
-            <div class="card-header">
 
-                <div>
+            <!-- HEADER -->
 
-                    <span class="small-label">
-                        POLL MANAGEMENT
-                    </span>
+            <div class="admin-heading">
 
-                    <h2>
-                        Create New Poll
-                    </h2>
+                <span class="small-title">
+                    SKYLARK NETWORK
+                </span>
 
-                </div>
+                <h1>
+                    Poll Management
+                </h1>
+
+                <p>
+                    Create and manage community polls.
+                </p>
 
             </div>
 
 
-            <form id="createPollForm">
+
+            <!-- CREATE POLL -->
+
+            <section class="create-section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        🗳️
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Create New Poll
+                        </h2>
+
+                        <p>
+                            Create a question and add
+                            voting options.
+                        </p>
+
+                    </div>
+
+                </div>
 
 
                 <label for="pollQuestion">
                     Poll Question
                 </label>
 
-                <textarea
+
+                <input
                     id="pollQuestion"
-                    placeholder="Example: What should Skylark add next?"
-                    required
-                ></textarea>
+                    type="text"
+                    placeholder="Example: What should Skylark update next?"
+                    autocomplete="off"
+                >
 
 
-
-                <label>
+                <label for="pollOptions">
                     Poll Options
                 </label>
 
 
-                <div
-                    class="options-container"
-                    id="optionsContainer"
-                >
-
-                    <div class="option-input">
-
-                        <input
-                            type="text"
-                            placeholder="Option 1"
-                            required
-                        >
-
-                    </div>
+                <textarea
+                    id="pollOptions"
+                    rows="6"
+                    placeholder="Enter one option per line&#10;&#10;New Skyblock Update&#10;New Crates&#10;New Minigame"
+                ></textarea>
 
 
-                    <div class="option-input">
-
-                        <input
-                            type="text"
-                            placeholder="Option 2"
-                            required
-                        >
-
-                    </div>
-
+                <div class="input-hint">
+                    Enter one option per line.
+                    At least 2 options are required.
                 </div>
 
 
                 <button
-                    type="button"
-                    class="add-option-button"
-                    id="addOptionButton"
-                >
-                    + Add Option
-                </button>
-
-
-                <button
-                    type="submit"
+                    id="createPoll"
                     class="create-button"
+                    type="button"
                 >
                     Create Poll
                 </button>
 
-
-                <p
-                    class="form-message"
-                    id="formMessage"
-                ></p>
-
-            </form>
-
-        </section>
+            </section>
 
 
 
-        <!-- CURRENT POLL -->
+            <!-- EXISTING POLLS -->
 
-        <section class="admin-card">
+            <section class="poll-management">
 
-            <div class="card-header">
+                <div class="section-heading">
 
-                <div>
-
-                    <span class="small-label">
-                        CURRENT POLL
-                    </span>
-
-                    <h2>
-                        Active Poll
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="currentPoll"
-                class="current-poll"
-            >
-
-                <div class="empty-state">
-
-                    <div class="empty-icon">
-                        🗳️
-                    </div>
-
-                    <h3>
-                        No Active Poll
-                    </h3>
-
-                    <p>
-                        Create a poll to see it here.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- POLL HISTORY -->
-
-        <section class="admin-card">
-
-            <div class="card-header">
-
-                <div>
-
-                    <span class="small-label">
-                        HISTORY
-                    </span>
-
-                    <h2>
-                        Previous Polls
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="pollHistory"
-                class="poll-history"
-            >
-
-                <div class="empty-state">
-
-                    <div class="empty-icon">
+                    <div class="section-icon">
                         📊
                     </div>
 
-                    <h3>
-                        No Previous Polls
-                    </h3>
+                    <div>
 
-                    <p>
-                        Closed polls will appear here.
-                    </p>
+                        <h2>
+                            Existing Polls
+                        </h2>
+
+                        <p>
+                            View votes and manage polls.
+                        </p>
+
+                    </div>
 
                 </div>
 
-            </div>
 
-        </section>
-
-
-    </main>
-
-
-
-    <!-- CONFIRM DELETE MODAL -->
-
-    <div
-        class="modal"
-        id="deleteModal"
-    >
-
-        <div class="modal-box">
-
-            <div class="modal-icon">
-                🗑️
-            </div>
-
-
-            <h2>
-                Delete Poll?
-            </h2>
-
-
-            <p>
-                This will permanently delete the poll
-                and its vote data.
-            </p>
-
-
-            <div class="modal-buttons">
-
-                <button
-                    class="cancel-button"
-                    id="cancelDelete"
+                <div
+                    id="adminPolls"
+                    class="admin-polls"
                 >
-                    Cancel
-                </button>
+
+                    <div class="loading-admin">
+
+                        <div class="loading-icon">
+                            🗳️
+                        </div>
+
+                        <h3>
+                            Loading Polls...
+                        </h3>
+
+                        <p>
+                            Connecting to Firebase...
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
 
 
-                <button
-                    class="delete-button"
-                    id="confirmDelete"
+
+            <!-- FOOTER -->
+
+            <div class="admin-footer">
+
+                <a
+                    href="index.html"
+                    class="back-link"
                 >
-                    Delete Poll
-                </button>
+                    ← Back to Poll
+                </a>
 
             </div>
 
         </div>
 
-    </div>
+    </main>
 
 
+
+    <!-- ADMIN JAVASCRIPT -->
 
     <script
         type="module"
-        src="admin.js"
+        src="./admin.js"
     ></script>
 
 
