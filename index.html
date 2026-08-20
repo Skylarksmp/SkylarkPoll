@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Skylark Poll</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================================
+         BACKGROUND
+    ================================================== -->
+
+    <div class="ocean-glow glow-1"></div>
+
+    <div class="ocean-glow glow-2"></div>
+
+
+
+    <!-- =================================================
+         NAVBAR
+    ================================================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+
+            <!-- LOGO -->
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    SLK
+                </div>
+
+                <span>
+                    SKYLARK
+                </span>
+
+            </div>
+
+
+
+            <!-- NAVIGATION -->
+
+            <nav>
+
+                <a href="#home">
+                    Home
+                </a>
+
+                <a href="#poll">
+                    Poll
+                </a>
+
+                <a href="#about">
+                    About
+                </a>
+
+                <!-- ADMIN -->
+
+                <a
+                    href="admin.html"
+                    class="admin-link"
+                >
+                    Admin
+                </a>
+
+            </nav>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section
+        class="hero"
+        id="home"
+    >
+
+        <div class="hero-content">
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                SKYLARK COMMUNITY
+
+            </div>
+
+
+
+            <h1>
+
+                Skylark<br>
+
+                <span>
+                    Community Poll
+                </span>
+
+            </h1>
+
+
+
+            <p>
+
+                Vote on Skylark's latest updates,
+                decisions and community events.
+
+            </p>
+
+
+
+            <a
+                href="#poll"
+                class="primary-btn"
+            >
+
+                Vote Now
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         POLL SECTION
+    ================================================== -->
+
+    <section
+        class="poll-section"
+        id="poll"
+    >
+
+
+        <div class="section-title">
+
+
+            <span class="small-title">
+
+                SKYLARK COMMUNITY
+
+            </span>
+
+
+
+            <h2>
+
+                Current
+
+                <span>
+                    Poll
+                </span>
+
+            </h2>
+
+
+
+            <p>
+
+                Your vote helps shape the future
+                of Skylark.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             MESSAGE
+        ================================================== -->
+
+        <div
+            id="pollMessage"
+            class="poll-message"
+        ></div>
+
+
+
+        <!-- =================================================
+             POLL CONTAINER
+        ================================================== -->
+
+        <div
+            id="pollContainer"
+            class="poll-container"
+        >
+
+
+            <div
+                class="loading-poll"
+            >
+
+
+                <div
+                    class="loading-icon"
+                >
+
+                    🗳️
+
+                </div>
+
+
+
+                <h2>
+
+                    Loading Poll...
+
+                </h2>
+
+
+
+                <p>
+
+                    Connecting to Skylark...
+
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOTAL VOTES
+        ================================================== -->
+
+        <div
+            class="vote-counter"
+        >
+
+
+            <span>
+
+                Total Votes
+
+            </span>
+
+
+
+            <strong
+                id="totalVotes"
+            >
+
+                0
+
+            </strong>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         ABOUT
+    ================================================== -->
+
+    <section
+        class="about"
+        id="about"
+    >
+
+
+        <div class="about-box">
+
+
+            <div class="about-icon">
+
+                🗳️
+
+            </div>
+
+
+
+            <div>
+
+
+                <h2>
+
+                    Your Vote Matters
+
+                </h2>
+
+
+
+                <p>
+
+                    Skylark polls allow the community
+                    to participate in important decisions
+                    and upcoming updates.
+
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         FOOTER
+    ================================================== -->
+
+    <footer>
+
+
+        <div class="footer-logo">
+
+            SKYLARK
+
+        </div>
+
+
+
+        <p>
+
+            © 2026 Skylark Network.
+            All rights reserved.
+
+        </p>
+
+
+
+        <div class="footer-links">
+
+
+            <a href="#home">
+
+                Home
+
+            </a>
+
+
+
+            <a href="#poll">
+
+                Poll
+
+            </a>
+
+
+
+            <a href="#about">
+
+                About
+
+            </a>
+
+
+
+            <a href="admin.html">
+
+                Admin
+
+            </a>
+
+
+        </div>
+
+
+    </footer>
+
+
+
+    <!-- =================================================
+         FIREBASE / POLL SCRIPT
+    ================================================== -->
+
+    <script
+        type="module"
+        src="script.js"
+    ></script>
+
+
+</body>
+
+</html>
