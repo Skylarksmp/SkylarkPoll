@@ -4,55 +4,105 @@
     padding: 0;
 }
 
+:root {
+    --bg: #070914;
+    --card: rgba(17, 21, 40, 0.72);
+    --card-hover: rgba(23, 28, 52, 0.82);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --muted: #8e94ad;
+    --purple: #7561ff;
+    --purple-light: #a37aff;
+    --blue: #4cc9ff;
+    --danger: #ff667c;
+}
+
 html {
     scroll-behavior: smooth;
 }
 
 body {
-    font-family: Inter, Arial, sans-serif;
     min-height: 100vh;
+
+    font-family:
+        "Inter",
+        Arial,
+        sans-serif;
+
     background:
         radial-gradient(
-            circle at 20% 10%,
-            rgba(92, 61, 255, 0.22),
-            transparent 35%
+            circle at 15% 10%,
+            rgba(102, 77, 255, 0.18),
+            transparent 32%
         ),
         radial-gradient(
-            circle at 85% 80%,
-            rgba(0, 190, 255, 0.14),
-            transparent 35%
+            circle at 85% 20%,
+            rgba(56, 189, 248, 0.08),
+            transparent 30%
         ),
-        #070914;
-    color: #ffffff;
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(116, 80, 255, 0.12),
+            transparent 38%
+        ),
+        var(--bg);
+
+    color: var(--text);
+
+    overflow-x: hidden;
 }
 
 
 /* =====================================================
-   BACKGROUND GLOW
+   BACKGROUND GLOWS
 ===================================================== */
 
-body::before,
-body::after {
-    content: "";
+.ocean-glow {
     position: fixed;
-    width: 380px;
-    height: 380px;
+
+    width: 420px;
+    height: 420px;
+
     border-radius: 50%;
-    filter: blur(100px);
+
+    filter: blur(110px);
+
     pointer-events: none;
+
     z-index: -1;
+
+    opacity: 0.5;
+
+    animation:
+        glowMove 12s ease-in-out infinite alternate;
 }
 
-body::before {
-    background: rgba(92, 67, 255, 0.16);
-    top: -150px;
-    left: -120px;
+.glow-1 {
+    top: -180px;
+    left: -150px;
+
+    background: rgba(99, 75, 255, 0.2);
 }
 
-body::after {
-    background: rgba(0, 174, 255, 0.10);
+.glow-2 {
+    right: -180px;
     bottom: -150px;
-    right: -120px;
+
+    background: rgba(0, 174, 255, 0.12);
+
+    animation-delay: -5s;
+}
+
+@keyframes glowMove {
+
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate3d(40px, 30px, 0) scale(1.12);
+    }
+
 }
 
 
@@ -62,214 +112,84 @@ body::after {
 
 .login-screen {
     min-height: 100vh;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 24px;
+
+    animation:
+        pageIn 0.7s ease;
 }
 
 .login-card {
-    width: 100%;
-    max-width: 450px;
-    padding: 42px 34px;
+    width: min(440px, 100%);
+
+    position: relative;
+
+    padding: 42px 36px;
+
     text-align: center;
 
     background:
         linear-gradient(
             145deg,
-            rgba(25, 28, 52, 0.95),
-            rgba(12, 15, 30, 0.94)
+            rgba(23, 27, 52, 0.82),
+            rgba(9, 12, 26, 0.78)
         );
 
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
+    border:
+        1px solid var(--border);
+
+    border-radius: 26px;
+
+    backdrop-filter: blur(24px);
 
     box-shadow:
-        0 30px 80px rgba(0,0,0,0.45),
-        inset 0 1px rgba(255,255,255,0.05);
+        0 35px 100px rgba(0, 0, 0, 0.48),
+        inset 0 1px 0 rgba(255,255,255,0.06);
 
-    backdrop-filter: blur(18px);
+    overflow: hidden;
 }
 
-.login-icon {
-    width: 72px;
-    height: 72px;
+.login-card::before {
+    content: "";
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
 
-    margin: 0 auto 20px;
+    top: 0;
+    left: 12%;
 
-    border-radius: 20px;
-
-    font-size: 32px;
+    width: 76%;
+    height: 1px;
 
     background:
         linear-gradient(
-            135deg,
-            #705cff,
-            #9c68ff
+            90deg,
+            transparent,
+            rgba(145, 125, 255, 0.8),
+            transparent
         );
-
-    box-shadow:
-        0 12px 35px rgba(111, 83, 255, 0.35);
 }
 
-.small-title {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #8e8cff;
-}
-
-.login-card h1 {
-    margin-top: 8px;
-    font-size: 34px;
-    font-weight: 800;
-}
-
-.login-card p {
-    margin: 14px auto 28px;
-    max-width: 350px;
-    line-height: 1.7;
-    color: #969bb4;
-}
-
-
-/* =====================================================
-   GOOGLE BUTTON
-===================================================== */
-
-.google-login {
-    width: 100%;
-    border: 0;
-    cursor: pointer;
-
+.login-brand {
     display: flex;
+
     align-items: center;
     justify-content: center;
-    gap: 12px;
 
-    padding: 15px 20px;
+    gap: 10px;
 
-    border-radius: 13px;
+    margin-bottom: 30px;
 
-    background: #ffffff;
-    color: #171821;
+    color: #c7c9d8;
 
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 11px;
 
-    transition:
-        transform 0.2s,
-        box-shadow 0.2s;
-}
-
-.google-login:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 12px 30px rgba(255,255,255,0.12);
-}
-
-.google-login:active {
-    transform: translateY(0);
-}
-
-.google-login:disabled {
-    opacity: 0.65;
-    cursor: wait;
-}
-
-.google-icon {
-    font-size: 20px;
     font-weight: 800;
-}
 
-
-/* =====================================================
-   LOGIN MESSAGE
-===================================================== */
-
-.login-message {
-    min-height: 22px;
-
-    margin-top: 16px;
-
-    font-size: 12px;
-    line-height: 1.5;
-
-    color: #8f95ad;
-    word-break: break-word;
-}
-
-
-/* =====================================================
-   LINKS
-===================================================== */
-
-.back-link {
-    display: inline-block;
-
-    margin-top: 20px;
-
-    color: #8d89ff;
-
-    text-decoration: none;
-
-    font-size: 13px;
-    font-weight: 600;
-
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: #b2afff;
-}
-
-
-/* =====================================================
-   ADMIN PANEL
-===================================================== */
-
-.admin-panel {
-    min-height: 100vh;
-}
-
-
-/* =====================================================
-   NAVBAR
-===================================================== */
-
-.admin-navbar {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-
-    min-height: 72px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 5%;
-
-    background: rgba(7, 9, 20, 0.82);
-
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-
-    backdrop-filter: blur(18px);
-}
-
-.admin-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 .logo-icon {
@@ -285,164 +205,601 @@ body::after {
     background:
         linear-gradient(
             135deg,
-            #6856ff,
-            #a568ff
+            #6958ff,
+            #a66bff
         );
 
-    font-size: 11px;
+    font-size: 10px;
+
     font-weight: 900;
 
     box-shadow:
-        0 8px 25px rgba(101, 83, 255, 0.3);
+        0 8px 25px rgba(105, 88, 255, 0.35);
 }
 
-.admin-user {
+.login-icon {
+    width: 76px;
+    height: 76px;
+
     display: flex;
     align-items: center;
-    gap: 14px;
+    justify-content: center;
+
+    margin: 0 auto 20px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(112, 91, 255, 0.2),
+            rgba(157, 103, 255, 0.12)
+        );
+
+    border:
+        1px solid rgba(135, 115, 255, 0.22);
+
+    font-size: 32px;
+
+    box-shadow:
+        0 15px 40px rgba(91, 71, 255, 0.18);
+
+    animation:
+        floatIcon 4s ease-in-out infinite;
 }
 
-#adminEmail {
-    max-width: 240px;
+@keyframes floatIcon {
 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    0%,
+    100% {
+        transform: translateY(0);
+    }
 
-    color: #9da2bb;
+    50% {
+        transform: translateY(-5px);
+    }
 
-    font-size: 12px;
 }
 
-.logout-button {
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.05);
+.small-title {
+    display: block;
 
-    color: #ffffff;
+    color: #9189ff;
 
-    padding: 9px 15px;
+    font-size: 10px;
 
-    border-radius: 9px;
+    font-weight: 800;
 
-    cursor: pointer;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    transition: 0.2s;
+    letter-spacing: 2px;
 }
 
-.logout-button:hover {
-    background: rgba(255,255,255,0.1);
-}
-
-
-/* =====================================================
-   CONTAINER
-===================================================== */
-
-.admin-container {
-    width: min(1100px, 92%);
-    margin: auto;
-
-    padding: 60px 0 80px;
-}
-
-
-/* =====================================================
-   HEADING
-===================================================== */
-
-.admin-heading {
-    margin-bottom: 35px;
-}
-
-.admin-heading h1 {
+.login-card h1 {
     margin-top: 8px;
 
-    font-size: clamp(
-        32px,
-        5vw,
-        48px
-    );
+    font-size: 34px;
 
     font-weight: 800;
 
     letter-spacing: -1px;
 }
 
-.admin-heading p {
-    margin-top: 10px;
+.login-card p {
+    margin: 13px auto 27px;
 
-    color: #8e94ad;
+    max-width: 350px;
 
-    line-height: 1.6;
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.7;
 }
 
 
 /* =====================================================
-   SECTIONS
+   GOOGLE BUTTON
 ===================================================== */
 
-.create-section,
-.poll-management {
-    padding: 30px;
+.google-login {
+    width: 100%;
 
-    margin-bottom: 25px;
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    color: #171821;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        opacity 0.25s ease;
+}
+
+.google-login:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 15px 35px rgba(255,255,255,0.12);
+}
+
+.google-login:active {
+    transform: translateY(0) scale(0.99);
+}
+
+.google-login:disabled {
+    opacity: 0.6;
+
+    cursor: wait;
+}
+
+.google-logo {
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   LOGIN MESSAGE
+===================================================== */
+
+.login-message {
+    min-height: 20px;
+
+    margin-top: 15px;
+
+    color: #858ba4;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+    word-break: break-word;
+}
+
+.back-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 18px;
+
+    color: #8580e9;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.back-link:hover {
+    color: #b3afff;
+
+    transform: translateX(-2px);
+}
+
+
+/* =====================================================
+   ADMIN PANEL
+===================================================== */
+
+.admin-panel {
+    min-height: 100vh;
+
+    animation:
+        pageIn 0.5s ease;
+}
+
+@keyframes pageIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.admin-navbar {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    height: 72px;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(22,25,46,0.92),
-            rgba(11,14,28,0.9)
-        );
+        rgba(6, 8, 18, 0.72);
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.06);
+
+    backdrop-filter: blur(22px);
+}
+
+.nav-container {
+    width: min(1180px, 92%);
+
+    height: 100%;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    color: white;
+
+    text-decoration: none;
+}
+
+.brand-text {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1px;
+}
+
+.brand-text strong {
+    font-size: 13px;
+
+    letter-spacing: 1.5px;
+}
+
+.brand-text span {
+    color: #777d96;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+
+    font-weight: 800;
+}
+
+.admin-user {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+.user-info {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 2px;
+}
+
+.user-label {
+    color: #62687f;
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+}
+
+.user-email {
+    max-width: 230px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: #aeb3c8;
+
+    font-size: 11px;
+}
+
+.logout-button {
+    padding: 9px 14px;
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius: 9px;
+
+    background:
+        rgba(255,255,255,0.035);
+
+    color: #aeb3c8;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.logout-button:hover {
+    background:
+        rgba(255,255,255,0.08);
+
+    color: white;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.admin-container {
+    width: min(1050px, 92%);
+
+    margin: auto;
+
+    padding:
+        58px 0 80px;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+===================================================== */
+
+.page-header {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin-bottom: 35px;
+}
+
+.page-header h1 {
+    margin-top: 7px;
+
+    font-size:
+        clamp(32px, 5vw, 46px);
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    margin-top: 12px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+.header-badge {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 12px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(62, 211, 139, 0.07);
+
+    border:
+        1px solid rgba(62, 211, 139, 0.12);
+
+    color: #63dca0;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.online-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #55db96;
+
+    box-shadow:
+        0 0 10px rgba(85,219,150,0.8);
+
+    animation:
+        pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+
+}
+
+
+/* =====================================================
+   GLASS CARD
+===================================================== */
+
+.glass-card {
+    position: relative;
+
+    padding: 30px;
 
     border:
         1px solid rgba(255,255,255,0.07);
 
     border-radius: 20px;
 
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,24,45,0.72),
+            rgba(10,13,27,0.72)
+        );
+
+    backdrop-filter: blur(20px);
+
     box-shadow:
-        0 20px 50px rgba(0,0,0,0.22);
+        0 25px 70px rgba(0,0,0,0.2),
+        inset 0 1px rgba(255,255,255,0.035);
+
+    transition:
+        border-color 0.3s ease,
+        transform 0.3s ease;
 }
 
-.section-heading {
+.glass-card:hover {
+    border-color:
+        rgba(125,105,255,0.14);
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.section-header {
     display: flex;
+
     align-items: center;
+
     gap: 15px;
 
     margin-bottom: 28px;
 }
 
 .section-icon {
-    width: 48px;
-    height: 48px;
+    width: 49px;
+    height: 49px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 
     border-radius: 14px;
 
     background:
-        rgba(111, 88, 255, 0.14);
+        linear-gradient(
+            135deg,
+            rgba(116,93,255,0.17),
+            rgba(157,104,255,0.08)
+        );
 
     border:
-        1px solid rgba(130,110,255,0.2);
+        1px solid rgba(130,110,255,0.17);
 
-    font-size: 22px;
-}
-
-.section-heading h2 {
     font-size: 21px;
+
+    box-shadow:
+        0 10px 25px rgba(100,80,255,0.08);
 }
 
-.section-heading p {
+.section-label {
+    color: #8e87f2;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.7px;
+}
+
+.section-header h2,
+.polls-heading h2 {
+    margin-top: 4px;
+
+    font-size: 21px;
+
+    font-weight: 800;
+}
+
+.section-header p {
     margin-top: 5px;
 
-    color: #858ba5;
+    color: #7e849c;
 
-    font-size: 13px;
+    font-size: 12px;
+
+    line-height: 1.5;
 }
 
 
@@ -450,70 +807,96 @@ body::after {
    FORM
 ===================================================== */
 
-.create-section label {
+.form-group {
+    margin-top: 20px;
+}
+
+.form-group label {
     display: block;
 
-    margin: 18px 0 8px;
+    margin-bottom: 8px;
 
-    color: #d9dcf0;
+    color: #c6c9d8;
 
-    font-size: 13px;
+    font-size: 12px;
+
     font-weight: 700;
 }
 
-.create-section input,
-.create-section textarea {
+.form-group input,
+.form-group textarea {
     width: 100%;
-
-    border: 1px solid rgba(255,255,255,0.08);
 
     outline: none;
 
+    border:
+        1px solid rgba(255,255,255,0.07);
+
     border-radius: 11px;
 
-    background: rgba(0,0,0,0.2);
+    background:
+        rgba(3,5,13,0.38);
 
-    color: #ffffff;
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+.form-group input {
+    height: 50px;
+
+    padding: 0 15px;
+}
+
+.form-group textarea {
+    min-height: 125px;
 
     padding: 14px 15px;
 
-    font-family: inherit;
-    font-size: 14px;
-
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
-}
-
-.create-section input {
-    height: 50px;
-}
-
-.create-section textarea {
     resize: vertical;
-    min-height: 130px;
 }
 
-.create-section input:focus,
-.create-section textarea:focus {
-    border-color: rgba(126,105,255,0.7);
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #565c73;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    background:
+        rgba(5,7,17,0.55);
+
+    border-color:
+        rgba(125,105,255,0.55);
 
     box-shadow:
-        0 0 0 3px rgba(108,87,255,0.1);
-}
-
-.create-section input::placeholder,
-.create-section textarea::placeholder {
-    color: #5f647a;
+        0 0 0 3px rgba(116,94,255,0.08),
+        0 8px 25px rgba(0,0,0,0.12);
 }
 
 .input-hint {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
     margin-top: 8px;
 
-    color: #686e86;
+    color: #666c83;
 
-    font-size: 11px;
-    line-height: 1.5;
+    font-size: 10px;
+}
+
+.input-hint strong {
+    color: #777d94;
 }
 
 
@@ -521,93 +904,189 @@ body::after {
    CREATE BUTTON
 ===================================================== */
 
+.create-actions {
+    margin-top: 23px;
+}
+
 .create-button {
-    margin-top: 22px;
+    min-height: 46px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 0 17px 0 19px;
 
     border: 0;
-
-    padding: 13px 22px;
 
     border-radius: 11px;
 
     background:
         linear-gradient(
             135deg,
-            #6655ff,
-            #925fff
+            #6958ff,
+            #9865ff
         );
 
-    color: #ffffff;
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 800;
 
     cursor: pointer;
 
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 800;
-
     box-shadow:
-        0 10px 25px rgba(102,85,255,0.25);
+        0 12px 30px rgba(102,82,255,0.2);
 
     transition:
-        transform 0.2s,
-        box-shadow 0.2s;
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
 }
 
 .create-button:hover {
     transform: translateY(-2px);
 
+    filter: brightness(1.08);
+
     box-shadow:
-        0 14px 32px rgba(102,85,255,0.35);
+        0 16px 35px rgba(102,82,255,0.32);
+}
+
+.create-button:active {
+    transform: scale(0.98);
 }
 
 .create-button:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
+
     cursor: wait;
+
+    transform: none;
+}
+
+.button-arrow {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    background:
+        rgba(255,255,255,0.14);
+
+    font-size: 15px;
 }
 
 
 /* =====================================================
-   POLLS
+   POLL MANAGEMENT
 ===================================================== */
+
+.poll-management {
+    margin-top: 32px;
+}
+
+.polls-heading {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    margin-bottom: 17px;
+}
+
+.poll-count {
+    padding: 7px 10px;
+
+    border-radius: 7px;
+
+    background:
+        rgba(116,93,255,0.09);
+
+    border:
+        1px solid rgba(116,93,255,0.12);
+
+    color: #958cff;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
 
 .admin-polls {
     display: grid;
-    gap: 16px;
+
+    gap: 12px;
 }
 
-.loading-admin,
-.empty-polls {
-    padding: 45px 20px;
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.loading-admin {
+    padding: 55px 20px;
 
     text-align: center;
 
-    border-radius: 15px;
+    border:
+        1px dashed rgba(255,255,255,0.07);
+
+    border-radius: 17px;
 
     background:
-        rgba(0,0,0,0.14);
+        rgba(255,255,255,0.015);
+}
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+
+    margin: 0 auto 15px;
 
     border:
-        1px dashed rgba(255,255,255,0.08);
+        2px solid rgba(255,255,255,0.08);
+
+    border-top-color:
+        #8170ff;
+
+    border-radius: 50%;
+
+    animation:
+        spin 0.8s linear infinite;
 }
 
-.loading-icon {
-    font-size: 30px;
+@keyframes spin {
 
-    margin-bottom: 10px;
+    to {
+        transform: rotate(360deg);
+    }
+
 }
 
-.loading-admin h3,
-.empty-polls h3 {
-    font-size: 16px;
+.loading-admin h3 {
+    font-size: 14px;
 }
 
-.loading-admin p,
-.empty-polls p {
-    margin-top: 7px;
+.loading-admin p {
+    margin-top: 6px;
 
-    color: #777d96;
+    color: #656b82;
 
-    font-size: 12px;
+    font-size: 11px;
 }
 
 
@@ -616,84 +1095,121 @@ body::after {
 ===================================================== */
 
 .admin-poll-card {
-    padding: 22px;
+    padding: 20px;
+
+    border:
+        1px solid rgba(255,255,255,0.06);
 
     border-radius: 16px;
 
     background:
-        rgba(0,0,0,0.18);
+        linear-gradient(
+            145deg,
+            rgba(20,24,44,0.65),
+            rgba(9,12,25,0.6)
+        );
 
-    border:
-        1px solid rgba(255,255,255,0.07);
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        background 0.25s ease;
+}
+
+.admin-poll-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(125,105,255,0.17);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(25,29,52,0.72),
+            rgba(10,13,27,0.68)
+        );
 }
 
 .admin-poll-header {
     display: flex;
+
     align-items: flex-start;
+
     justify-content: space-between;
 
     gap: 20px;
 
-    margin-bottom: 18px;
+    margin-bottom: 15px;
 }
 
 .admin-poll-header h3 {
-    margin-top: 8px;
+    margin-top: 7px;
 
-    font-size: 17px;
-    line-height: 1.4;
+    font-size: 15px;
+
+    line-height: 1.5;
 }
 
 .poll-status {
     display: inline-block;
 
-    padding: 5px 9px;
+    padding: 4px 7px;
 
-    border-radius: 6px;
+    border-radius: 5px;
 
     background:
-        rgba(60,210,130,0.12);
+        rgba(68,215,139,0.08);
 
-    color: #5de39a;
+    color: #5cdb98;
 
-    font-size: 9px;
+    font-size: 8px;
+
     font-weight: 900;
+
     letter-spacing: 1px;
 }
 
 
 /* =====================================================
-   DELETE
+   DELETE BUTTON
 ===================================================== */
 
 .delete-poll {
     flex-shrink: 0;
 
-    border: 1px solid rgba(255,80,100,0.2);
+    padding: 8px 12px;
 
-    background:
-        rgba(255,70,90,0.08);
-
-    color: #ff8291;
-
-    padding: 8px 13px;
+    border:
+        1px solid rgba(255,91,111,0.15);
 
     border-radius: 8px;
 
-    cursor: pointer;
+    background:
+        rgba(255,75,98,0.05);
 
-    font-size: 11px;
+    color: #ff7c8e;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
     font-weight: 800;
 
-    transition: 0.2s;
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .delete-poll:hover {
     background:
-        rgba(255,70,90,0.16);
+        rgba(255,75,98,0.11);
 
     border-color:
-        rgba(255,80,100,0.35);
+        rgba(255,91,111,0.28);
+
+    transform: translateY(-1px);
 }
 
 
@@ -703,28 +1219,45 @@ body::after {
 
 .admin-options {
     display: grid;
-    gap: 8px;
+
+    gap: 7px;
 }
 
 .admin-option {
+    min-height: 40px;
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
-    padding: 12px 14px;
+    gap: 15px;
 
-    border-radius: 9px;
+    padding: 0 12px;
+
+    border-radius: 8px;
 
     background:
-        rgba(255,255,255,0.035);
+        rgba(255,255,255,0.025);
 
-    color: #bfc4d8;
+    color: #aeb3c6;
 
-    font-size: 13px;
+    font-size: 11px;
+
+    transition:
+        background 0.2s ease;
+}
+
+.admin-option:hover {
+    background:
+        rgba(255,255,255,0.045);
 }
 
 .admin-option strong {
-    color: #9d91ff;
+    color: #988cff;
+
+    font-size: 12px;
 }
 
 
@@ -733,22 +1266,53 @@ body::after {
 ===================================================== */
 
 .admin-total {
-    margin-top: 15px;
+    margin-top: 13px;
 
-    padding-top: 14px;
+    padding-top: 12px;
 
     border-top:
-        1px solid rgba(255,255,255,0.06);
+        1px solid rgba(255,255,255,0.05);
 
-    color: #777d96;
+    color: #656b82;
 
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .admin-total strong {
-    color: #ffffff;
-
     margin-left: 5px;
+
+    color: #d7d9e4;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty-polls {
+    padding: 45px 20px;
+
+    text-align: center;
+
+    border:
+        1px dashed rgba(255,255,255,0.07);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,0.015);
+}
+
+.empty-polls h3 {
+    font-size: 14px;
+}
+
+.empty-polls p {
+    margin-top: 6px;
+
+    color: #656b82;
+
+    font-size: 11px;
 }
 
 
@@ -757,9 +1321,19 @@ body::after {
 ===================================================== */
 
 .admin-footer {
-    text-align: center;
+    padding-top: 35px;
 
-    padding-top: 10px;
+    text-align: center;
+}
+
+.admin-footer p {
+    margin-top: 15px;
+
+    color: #444a60;
+
+    font-size: 9px;
+
+    letter-spacing: 0.5px;
 }
 
 
@@ -767,40 +1341,52 @@ body::after {
    MOBILE
 ===================================================== */
 
-@media (max-width: 650px) {
+@media (max-width: 700px) {
 
     .admin-navbar {
-        padding: 0 4%;
+        height: 65px;
     }
 
-    .admin-logo span {
+    .nav-container {
+        width: 94%;
+    }
+
+    .brand-text {
         display: none;
     }
 
-    #adminEmail {
-        max-width: 130px;
+    .user-info {
+        display: none;
     }
 
     .admin-container {
         width: 94%;
-        padding-top: 35px;
+
+        padding-top: 38px;
     }
 
-    .create-section,
-    .poll-management {
+    .page-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 17px;
+    }
+
+    .page-header h1 {
+        font-size: 34px;
+    }
+
+    .glass-card {
         padding: 22px;
+    }
+
+    .section-header {
+        align-items: flex-start;
     }
 
     .admin-poll-header {
         flex-direction: column;
     }
 
-    .delete-poll {
-        width: 100%;
-    }
-
-    .login-card {
-        padding: 34px 23px;
-    }
-
-    }
+    .del
