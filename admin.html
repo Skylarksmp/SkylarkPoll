@@ -55,7 +55,7 @@
             </p>
 
 
-            <!-- GOOGLE LOGIN BUTTON -->
+            <!-- GOOGLE LOGIN -->
 
             <button
                 id="googleLogin"
@@ -72,20 +72,20 @@
             </button>
 
 
-            <!-- LOGIN MESSAGE -->
+            <!-- STATUS -->
 
             <div
                 id="loginMessage"
                 class="login-message"
             >
-                Ready to login...
+                Loading Firebase...
             </div>
 
 
             <!-- BACK -->
 
             <a
-                href="index.html"
+                href="./index.html"
                 class="back-link"
             >
                 ← Back to Poll
@@ -147,7 +147,7 @@
 
 
         <!-- =================================================
-             ADMIN CONTENT
+             CONTENT
         ================================================== -->
 
         <div class="admin-container">
@@ -234,7 +234,7 @@
                 <textarea
                     id="pollOptions"
                     rows="6"
-                    placeholder="Enter one option per line&#10;&#10;New Skyblock Update&#10;New Crates&#10;New Minigame"
+                    placeholder="Enter one option per line&#10;&#10;New Updates&#10;No Updates"
                 ></textarea>
 
 
@@ -302,12 +302,12 @@
 
 
                         <h3>
-                            Loading Polls...
+                            Waiting for Firebase...
                         </h3>
 
 
                         <p>
-                            Connecting to Firebase...
+                            Please wait.
                         </p>
 
                     </div>
@@ -323,7 +323,7 @@
             <div class="admin-footer">
 
                 <a
-                    href="index.html"
+                    href="./index.html"
                     class="back-link"
                 >
                     ← Back to Poll
@@ -339,38 +339,51 @@
 
 
     <!-- =====================================================
-         HTML TEST
+         JAVASCRIPT LOAD TEST
     ====================================================== -->
 
     <script>
 
         console.log(
-            "SKYLARK ADMIN HTML LOADED"
+            "SKYLARK: admin.html loaded"
         );
 
-        const testMessage =
-            document.getElementById(
-                "loginMessage"
-            );
 
-        if (testMessage) {
+        window.addEventListener(
+            "error",
+            function(event) {
 
-            testMessage.textContent =
-                "HTML loaded — waiting for Firebase...";
+                const message =
+                    document.getElementById(
+                        "loginMessage"
+                    );
 
-        }
+                if (message) {
+
+                    message.textContent =
+                        "❌ JavaScript Error: " +
+                        event.message;
+
+                }
+
+            }
+        );
 
     </script>
 
 
 
     <!-- =====================================================
-         ADMIN JAVASCRIPT
+         FIREBASE / ADMIN SCRIPT
     ====================================================== -->
 
     <script
         type="module"
         src="./admin.js"
+        onerror="
+            document.getElementById('loginMessage').textContent =
+            '❌ Could not load admin.js';
+        "
     ></script>
 
 
