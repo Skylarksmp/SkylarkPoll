@@ -10,7 +10,8 @@ import {
 import {
     getAuth,
     GoogleAuthProvider,
-    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -31,68 +32,37 @@ import {
 ===================================================== */
 
 const firebaseConfig = {
-
-    apiKey:
-        "AIzaSyAnkbOkah3JjBe_9lsYYMinMXzY5VlLfL4",
-
-    authDomain:
-        "skylark-staff-application.firebaseapp.com",
-
-    projectId:
-        "skylark-staff-application",
-
-    storageBucket:
-        "skylark-staff-application.firebasestorage.app",
-
-    messagingSenderId:
-        "877610328379",
-
-    appId:
-        "1:877610328379:web:8d0a892bad042875de971e"
-
+    apiKey: "AIzaSyAnkbOkah3JjBe_9lsYYMinMXzY5VlLfL4",
+    authDomain: "skylark-staff-application.firebaseapp.com",
+    projectId: "skylark-staff-application",
+    storageBucket: "skylark-staff-application.firebasestorage.app",
+    messagingSenderId: "877610328379",
+    appId: "1:877610328379:web:8d0a892bad042875de971e"
 };
 
 
 /* =====================================================
-   FIREBASE INITIALIZE
+   INITIALIZE FIREBASE
 ===================================================== */
 
-const app =
-    initializeApp(
-        firebaseConfig
-    );
+const app = initializeApp(firebaseConfig);
 
+const auth = getAuth(app);
 
-const auth =
-    getAuth(
-        app
-    );
+const db = getFirestore(app);
 
-
-const db =
-    getFirestore(
-        app
-    );
-
-
-const provider =
-    new GoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 
 
 /* =====================================================
-   ADMIN EMAILS
+   AUTHORIZED ADMINS
 ===================================================== */
 
 const ADMIN_EMAILS = [
-
     "xianytcontent@gmail.com",
-
     "deinnieldeinn@gmail.com",
-
     "keithledesma13@gmail.com",
-
     "mtzy6764@gmail.com"
-
 ];
 
 
@@ -101,81 +71,85 @@ const ADMIN_EMAILS = [
 ===================================================== */
 
 const loginScreen =
-    document.getElementById(
-        "loginScreen"
-    );
-
+    document.getElementById("loginScreen");
 
 const adminPanel =
-    document.getElementById(
-        "adminPanel"
-    );
+    document.getElementById("adminPanel");
 
-
-const loginButton =
-    document.getElementById(
-        "googleLogin"
-    );
-
+const googleLogin =
+    document.getElementById("googleLogin");
 
 const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
+    document.getElementById("logoutButton");
 
 const loginMessage =
-    document.getElementById(
-        "loginMessage"
-    );
-
+    document.getElementById("loginMessage");
 
 const adminEmail =
-    document.getElementById(
-        "adminEmail"
-    );
-
+    document.getElementById("adminEmail");
 
 const createPollButton =
-    document.getElementById(
-        "createPoll"
-    );
+    document.getElementById("createPoll");
 
+const pollQuestion =
+    document.getElementById("pollQuestion");
 
-const questionInput =
-    document.getElementById(
-        "pollQuestion"
-    );
+const pollOptions =
+    document.getElementById("pollOptions");
 
-
-const optionsInput =
-    document.getElementById(
-        "pollOptions"
-    );
-
-
-const pollsContainer =
-    document.getElementById(
-        "adminPolls"
-    );
+const adminPolls =
+    document.getElementById("adminPolls");
 
 
 /* =====================================================
    CHECK ADMIN
 ===================================================== */
 
-function isAdmin(
-    email
-) {
+function isAdmin(email) {
 
-    return ADMIN_EMAILS
-        .map(
-            value =>
-                value.toLowerCase()
-        )
-        .includes(
-            email.toLowerCase()
-        );
+    return ADMIN_EMAILS.includes(
+        email.toLowerCase()
+    );
+
+}
+
+
+/* =====================================================
+   SHOW LOGIN
+===================================================== */
+
+function showLogin() {
+
+    if (loginScreen) {
+        loginScreen.style.display = "flex";
+    }
+
+    if (adminPanel) {
+        adminPanel.style.display = "none";
+    }
+
+}
+
+
+/* =====================================================
+   SHOW ADMIN
+===================================================== */
+
+function showAdmin(user) {
+
+    if (loginScreen) {
+        loginScreen.style.display = "none";
+    }
+
+    if (adminPanel) {
+        adminPanel.style.display = "block";
+    }
+
+    if (adminEmail) {
+        adminEmail.textContent = user.email;
+    }
+
+    loadPolls();
 
 }
 
@@ -184,75 +158,113 @@ function isAdmin(
    GOOGLE LOGIN
 ===================================================== */
 
-if (loginButton) {
+if (googleLogin) {
 
-    loginButton.addEventListener(
+    googleLogin.addEventListener(
         "click",
-
         async () => {
-
-            loginMessage.textContent =
-                "Signing in with Google...";
-
 
             try {
 
-                const result =
-                    await signInWithPopup(
-                        auth,
-                        provider
-                    );
+                googleLogin.disabled = true;
 
+                googleLogin.textContent =
+                    "Redirecting to Google...";
 
-                const user =
-                    result.user;
-
-
-                if (
-                    !user.email ||
-                    !isAdmin(
-                        user.email
-                    )
-                ) {
-
-                    await signOut(
-                        auth
-                    );
-
-
+                if (loginMessage) {
                     loginMessage.textContent =
-                        "❌ This Google account is not an authorized Skylark admin.";
-
-                    return;
-
+                        "Opening Google sign-in...";
                 }
 
+                await signInWithRedirect(
+                    auth,
+                    provider
+                );
 
-                loginMessage.textContent =
-                    "✅ Admin login successful.";
-
-            }
-
-            catch (error) {
+            } catch (error) {
 
                 console.error(
                     "GOOGLE LOGIN ERROR:",
                     error
                 );
 
+                if (loginMessage) {
 
-                loginMessage.textContent =
-                    error.code +
-                    ": " +
-                    error.message;
+                    loginMessage.textContent =
+                        error.code +
+                        ": " +
+                        error.message;
+
+                }
+
+                googleLogin.disabled = false;
+
+                googleLogin.textContent =
+                    "Continue with Google";
 
             }
 
         }
-
     );
 
 }
+
+
+/* =====================================================
+   HANDLE REDIRECT RESULT
+===================================================== */
+
+getRedirectResult(auth)
+
+    .then((result) => {
+
+        if (!result) {
+            return;
+        }
+
+        const user = result.user;
+
+        if (!user.email) {
+            return;
+        }
+
+        if (!isAdmin(user.email)) {
+
+            signOut(auth);
+
+            showLogin();
+
+            if (loginMessage) {
+
+                loginMessage.textContent =
+                    "❌ This Google account is not an authorized Skylark admin.";
+
+            }
+
+            return;
+        }
+
+        showAdmin(user);
+
+    })
+
+    .catch((error) => {
+
+        console.error(
+            "REDIRECT LOGIN ERROR:",
+            error
+        );
+
+        if (loginMessage) {
+
+            loginMessage.textContent =
+                error.code +
+                ": " +
+                error.message;
+
+        }
+
+    });
 
 
 /* =====================================================
@@ -260,9 +272,7 @@ if (loginButton) {
 ===================================================== */
 
 onAuthStateChanged(
-
     auth,
-
     (user) => {
 
         if (!user) {
@@ -273,96 +283,30 @@ onAuthStateChanged(
 
         }
 
-
         if (
             !user.email ||
-            !isAdmin(
-                user.email
-            )
+            !isAdmin(user.email)
         ) {
 
-            signOut(
-                auth
-            );
+            signOut(auth);
 
             showLogin();
 
-            loginMessage.textContent =
-                "❌ Unauthorized admin account.";
+            if (loginMessage) {
+
+                loginMessage.textContent =
+                    "❌ Unauthorized account.";
+
+            }
 
             return;
 
         }
 
-
-        showAdminPanel(
-            user
-        );
+        showAdmin(user);
 
     }
-
 );
-
-
-/* =====================================================
-   SHOW LOGIN
-===================================================== */
-
-function showLogin() {
-
-    if (loginScreen) {
-
-        loginScreen.style.display =
-            "flex";
-
-    }
-
-
-    if (adminPanel) {
-
-        adminPanel.style.display =
-            "none";
-
-    }
-
-}
-
-
-/* =====================================================
-   SHOW ADMIN PANEL
-===================================================== */
-
-function showAdminPanel(
-    user
-) {
-
-    if (loginScreen) {
-
-        loginScreen.style.display =
-            "none";
-
-    }
-
-
-    if (adminPanel) {
-
-        adminPanel.style.display =
-            "block";
-
-    }
-
-
-    if (adminEmail) {
-
-        adminEmail.textContent =
-            user.email;
-
-    }
-
-
-    loadPolls();
-
-}
 
 
 /* =====================================================
@@ -373,18 +317,15 @@ if (logoutButton) {
 
     logoutButton.addEventListener(
         "click",
-
         async () => {
 
             try {
 
-                await signOut(
-                    auth
-                );
+                await signOut(auth);
 
-            }
+                showLogin();
 
-            catch (error) {
+            } catch (error) {
 
                 console.error(
                     "LOGOUT ERROR:",
@@ -394,7 +335,6 @@ if (logoutButton) {
             }
 
         }
-
     );
 
 }
@@ -408,42 +348,23 @@ if (createPollButton) {
 
     createPollButton.addEventListener(
         "click",
-
         async () => {
 
             const question =
-                questionInput
-                    ?.value
-                    .trim();
-
+                pollQuestion.value.trim();
 
             const optionsText =
-                optionsInput
-                    ?.value
-                    .trim();
-
+                pollOptions.value.trim();
 
             if (!question) {
 
                 alert(
-                    "Please enter a poll question."
+                    "Enter a poll question."
                 );
 
                 return;
 
             }
-
-
-            if (!optionsText) {
-
-                alert(
-                    "Please enter at least two options."
-                );
-
-                return;
-
-            }
-
 
             const optionLines =
                 optionsText
@@ -457,31 +378,23 @@ if (createPollButton) {
                             option.length > 0
                     );
 
-
-            if (
-                optionLines.length < 2
-            ) {
+            if (optionLines.length < 2) {
 
                 alert(
-                    "A poll needs at least two options."
+                    "You need at least 2 options."
                 );
 
                 return;
 
             }
 
-
             const options =
                 optionLines.map(
-                    text => ({
-
-                        text: text,
-
+                    option => ({
+                        text: option,
                         votes: 0
-
                     })
                 );
-
 
             try {
 
@@ -491,57 +404,36 @@ if (createPollButton) {
                 createPollButton.textContent =
                     "Creating...";
 
-
                 await addDoc(
-
                     collection(
                         db,
                         "polls"
                     ),
-
                     {
-
-                        question:
-                            question,
-
-                        options:
-                            options,
-
-                        active:
-                            true,
-
+                        question: question,
+                        options: options,
+                        active: true,
                         createdAt:
                             serverTimestamp(),
-
                         createdBy:
                             auth.currentUser.email
-
                     }
-
                 );
 
+                pollQuestion.value = "";
 
-                questionInput.value =
-                    "";
-
-                optionsInput.value =
-                    "";
-
+                pollOptions.value = "";
 
                 alert(
-                    "✅ Poll created successfully!"
+                    "✅ Poll created!"
                 );
 
-
-            }
-
-            catch (error) {
+            } catch (error) {
 
                 console.error(
                     "CREATE POLL ERROR:",
                     error
                 );
-
 
                 alert(
                     error.code +
@@ -549,9 +441,7 @@ if (createPollButton) {
                     error.message
                 );
 
-            }
-
-            finally {
+            } finally {
 
                 createPollButton.disabled =
                     false;
@@ -562,7 +452,6 @@ if (createPollButton) {
             }
 
         }
-
     );
 
 }
@@ -574,10 +463,9 @@ if (createPollButton) {
 
 function loadPolls() {
 
-    if (!pollsContainer) {
+    if (!adminPolls) {
         return;
     }
-
 
     const pollsRef =
         collection(
@@ -585,59 +473,37 @@ function loadPolls() {
             "polls"
         );
 
-
     onSnapshot(
-
         pollsRef,
-
         (snapshot) => {
 
-            pollsContainer.innerHTML =
-                "";
+            adminPolls.innerHTML = "";
 
+            if (snapshot.empty) {
 
-            if (
-                snapshot.empty
-            ) {
-
-                pollsContainer.innerHTML = `
-
+                adminPolls.innerHTML = `
                     <div class="empty-polls">
-
-                        <h3>
-                            No Polls
-                        </h3>
-
-                        <p>
-                            Create your first Skylark poll.
-                        </p>
-
+                        <h3>No Polls</h3>
+                        <p>Create your first Skylark poll.</p>
                     </div>
-
                 `;
 
                 return;
 
             }
 
-
             snapshot.forEach(
-                (pollDoc) => {
-
-                    const poll =
-                        pollDoc.data();
-
+                pollDoc => {
 
                     displayPoll(
                         pollDoc.id,
-                        poll
+                        pollDoc.data()
                     );
 
                 }
             );
 
         },
-
         (error) => {
 
             console.error(
@@ -645,34 +511,21 @@ function loadPolls() {
                 error
             );
 
-
-            pollsContainer.innerHTML = `
-
+            adminPolls.innerHTML = `
                 <div class="empty-polls">
-
-                    <h3>
-                        ⚠️ Failed to load polls
-                    </h3>
-
-                    <p>
-                        ${escapeHTML(
-                            error.message
-                        )}
-                    </p>
-
+                    <h3>⚠️ Failed to load polls</h3>
+                    <p>${escapeHTML(error.message)}</p>
                 </div>
-
             `;
 
         }
-
     );
 
 }
 
 
 /* =====================================================
-   DISPLAY ADMIN POLL
+   DISPLAY POLL
 ===================================================== */
 
 function displayPoll(
@@ -681,72 +534,45 @@ function displayPoll(
 ) {
 
     const options =
-        Array.isArray(
-            poll.options
-        )
+        Array.isArray(poll.options)
             ? poll.options
             : [];
 
-
     const totalVotes =
         options.reduce(
-            (
-                total,
-                option
-            ) => {
-
-                return (
-                    total +
-                    Number(
-                        option.votes || 0
-                    )
-                );
-
-            },
+            (total, option) =>
+                total +
+                Number(option.votes || 0),
             0
         );
 
-
     const card =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     card.className =
         "admin-poll-card";
 
-
-    let optionsHTML =
-        "";
-
+    let optionsHTML = "";
 
     options.forEach(
-        (option) => {
+        option => {
 
             optionsHTML += `
-
                 <div class="admin-option">
 
                     <span>
-                        ${escapeHTML(
-                            option.text
-                        )}
+                        ${escapeHTML(option.text)}
                     </span>
 
                     <strong>
-                        ${Number(
-                            option.votes || 0
-                        )}
+                        ${Number(option.votes || 0)}
                     </strong>
 
                 </div>
-
             `;
 
         }
     );
-
 
     card.innerHTML = `
 
@@ -755,45 +581,27 @@ function displayPoll(
             <div>
 
                 <span class="poll-status">
-
-                    ${
-                        poll.active
-                            ? "ACTIVE"
-                            : "CLOSED"
-                    }
-
+                    ${poll.active ? "ACTIVE" : "CLOSED"}
                 </span>
 
-
                 <h3>
-
-                    ${escapeHTML(
-                        poll.question
-                    )}
-
+                    ${escapeHTML(poll.question)}
                 </h3>
 
             </div>
-
 
             <button
                 class="delete-poll"
                 data-id="${id}"
             >
-
                 Delete
-
             </button>
 
         </div>
 
-
         <div class="admin-options">
-
             ${optionsHTML}
-
         </div>
-
 
         <div class="admin-total">
 
@@ -807,29 +615,16 @@ function displayPoll(
 
     `;
 
-
-    pollsContainer.appendChild(
-        card
-    );
-
+    adminPolls.appendChild(card);
 
     const deleteButton =
         card.querySelector(
             ".delete-poll"
         );
 
-
     deleteButton.addEventListener(
         "click",
-
-        () => {
-
-            deletePoll(
-                id
-            );
-
-        }
-
+        () => deletePoll(id)
     );
 
 }
@@ -843,43 +638,34 @@ async function deletePoll(
     pollId
 ) {
 
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this poll?\n\nThis cannot be undone."
-        );
-
-
-    if (!confirmed) {
+    if (
+        !confirm(
+            "Delete this poll?\n\nThis cannot be undone."
+        )
+    ) {
         return;
     }
-
 
     try {
 
         await deleteDoc(
-
             doc(
                 db,
                 "polls",
                 pollId
             )
-
         );
-
 
         alert(
             "✅ Poll deleted."
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "DELETE POLL ERROR:",
             error
         );
-
 
         alert(
             error.code +
@@ -896,35 +682,13 @@ async function deletePoll(
    ESCAPE HTML
 ===================================================== */
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
     return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
