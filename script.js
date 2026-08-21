@@ -1,6 +1,6 @@
 /* =====================================================
    SKYLARK POLL
-   PLAYER SCRIPT
+   PLAYER SCRIPT — LIVE RESULTS
 ===================================================== */
 
 import {
@@ -13,16 +13,13 @@ import {
     onSnapshot,
     doc,
     getDoc,
-    getDocs,
-    query,
-    where,
     runTransaction,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 /* =====================================================
-   FIREBASE
+   FIREBASE CONFIG
 ===================================================== */
 
 const firebaseConfig = {
@@ -34,8 +31,16 @@ const firebaseConfig = {
     appId: "1:877610328379:web:8d0a892bad042875de971e"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+const app =
+    initializeApp(firebaseConfig);
+
+const db =
+    getFirestore(app);
 
 
 /* =====================================================
@@ -43,13 +48,19 @@ const db = getFirestore(app);
 ===================================================== */
 
 const pollContainer =
-    document.getElementById("pollContainer");
+    document.getElementById(
+        "pollContainer"
+    );
 
 const pollMessage =
-    document.getElementById("pollMessage");
+    document.getElementById(
+        "pollMessage"
+    );
 
 const totalVotesElement =
-    document.getElementById("totalVotes");
+    document.getElementById(
+        "totalVotes"
+    );
 
 
 /* =====================================================
@@ -58,30 +69,46 @@ const totalVotesElement =
 
 function getPlayerId() {
 
-    let id =
+    let playerId =
         localStorage.getItem(
             "skylark_player_id"
         );
 
-    if (!id) {
 
-        id =
+    if (!playerId) {
+
+        playerId =
             crypto.randomUUID();
+
 
         localStorage.setItem(
             "skylark_player_id",
-            id
+            playerId
         );
+
     }
 
-    return id;
+
+    return playerId;
+
 }
 
-const playerId = getPlayerId();
+
+const playerId =
+    getPlayerId();
 
 
 /* =====================================================
-   LOAD ACTIVE POLL
+   ACTIVE POLL
+===================================================== */
+
+let activePoll = null;
+
+let unsubscribeVotes = null;
+
+
+/* =====================================================
+   LISTEN FOR POLLS
 ===================================================== */
 
 const pollsRef =
@@ -94,9 +121,10 @@ const pollsRef =
 onSnapshot(
     pollsRef,
 
-    async (snapshot) => {
+    (snapshot) => {
 
-        let activePoll = null;
+        let foundPoll = null;
+
 
         snapshot.forEach(
             (pollDoc) => {
@@ -104,13 +132,18 @@ onSnapshot(
                 const data =
                     pollDoc.data();
 
+
                 if (
                     data.active === true
                 ) {
 
-                    activePoll = {
-                        id: pollDoc.id,
+                    foundPoll = {
+
+                        id:
+                            pollDoc.id,
+
                         ...data
+
                     };
 
                 }
@@ -119,7 +152,11 @@ onSnapshot(
         );
 
 
-        if (!activePoll) {
+        if (!foundPoll) {
+
+            activePoll = null;
+
+            stopVoteListener();
 
             showNoPoll();
 
@@ -128,18 +165,24 @@ onSnapshot(
         }
 
 
-        await renderPoll(
-            activePoll
+        activePoll =
+            foundPoll;
+
+
+        startVoteListener(
+            foundPoll
         );
 
     },
 
+
     (error) => {
 
         console.error(
-            "Firestore poll error:",
+            "Poll listener error:",
             error
         );
+
 
         showError(
             error.message
@@ -150,10 +193,126 @@ onSnapshot(
 
 
 /* =====================================================
+   START LIVE VOTE LISTENER
+===================================================== */
+
+function startVoteListener(
+    poll
+) {
+
+    stopVoteListener();
+
+
+    const votesRef =
+        collection(
+            db,
+            "votes"
+        );
+
+
+    unsubscribeVotes =
+        onSnapshot(
+
+            votesRef,
+
+            (snapshot) => {
+
+                const counts =
+                    new Array(
+                        poll.options.length
+                    ).fill(0);
+
+
+                snapshot.forEach(
+                    (voteDoc) => {
+
+                        const data =
+                            voteDoc.data();
+
+
+                        if (
+                            data.pollId !==
+                            poll.id
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const index =
+                            Number(
+                                data.optionIndex
+                            );
+
+
+                        if (
+                            index >= 0 &&
+                            index <
+                            counts.length
+                        ) {
+
+                            counts[index]++;
+
+                        }
+
+                    }
+                );
+
+
+                renderPoll(
+                    poll,
+                    counts
+                );
+
+            },
+
+            (error) => {
+
+                console.error(
+                    "Vote listener error:",
+                    error
+                );
+
+                showError(
+                    error.message
+                );
+
+            }
+
+        );
+
+}
+
+
+/* =====================================================
+   STOP LIVE LISTENER
+===================================================== */
+
+function stopVoteListener() {
+
+    if (
+        unsubscribeVotes
+    ) {
+
+        unsubscribeVotes();
+
+        unsubscribeVotes =
+            null;
+
+    }
+
+}
+
+
+/* =====================================================
    RENDER POLL
 ===================================================== */
 
-async function renderPoll(poll) {
+async function renderPoll(
+    poll,
+    counts
+) {
 
     if (!pollContainer) {
         return;
@@ -166,21 +325,17 @@ async function renderPoll(poll) {
         );
 
 
-    const counts =
-        await getVoteCounts(
-            poll.id,
-            poll.options.length
-        );
-
-
     const total =
         counts.reduce(
-            (a, b) => a + b,
+            (sum, value) =>
+                sum + value,
             0
         );
 
 
-    if (totalVotesElement) {
+    if (
+        totalVotesElement
+    ) {
 
         totalVotesElement.textContent =
             total;
@@ -198,11 +353,13 @@ async function renderPoll(poll) {
                 counts[index] || 0;
 
 
-            const percent =
+            const percentage =
                 total === 0
                     ? 0
                     : Math.round(
-                        votes / total * 100
+                        votes /
+                        total *
+                        100
                     );
 
 
@@ -217,11 +374,19 @@ async function renderPoll(poll) {
                     <div class="option-top">
 
                         <span class="option-name">
-                            ${escapeHTML(option.text)}
+
+                            ${escapeHTML(
+                                option.text
+                            )}
+
                         </span>
 
+
                         <span class="option-votes">
-                            ${votes} votes
+
+                            ${votes}
+                            votes
+
                         </span>
 
                     </div>
@@ -231,14 +396,16 @@ async function renderPoll(poll) {
 
                         <div
                             class="option-progress"
-                            style="width:${percent}%"
+                            style="width:${percentage}%"
                         ></div>
 
                     </div>
 
 
                     <div class="option-percent">
-                        ${percent}%
+
+                        ${percentage}%
+
                     </div>
 
                 </button>
@@ -263,7 +430,11 @@ async function renderPoll(poll) {
 
 
             <h1 class="poll-question">
-                ${escapeHTML(poll.question)}
+
+                ${escapeHTML(
+                    poll.question
+                )}
+
             </h1>
 
 
@@ -318,6 +489,7 @@ async function renderPoll(poll) {
                             button.dataset.index
                         );
 
+
                     await submitVote(
                         poll,
                         index
@@ -333,14 +505,17 @@ async function renderPoll(poll) {
 
 
 /* =====================================================
-   CHECK IF PLAYER VOTED
+   CHECK VOTE
 ===================================================== */
 
-async function checkIfVoted(pollId) {
+async function checkIfVoted(
+    pollId
+) {
 
     const localKey =
         "skylark_voted_" +
         pollId;
+
 
     if (
         localStorage.getItem(
@@ -369,14 +544,14 @@ async function checkIfVoted(pollId) {
             );
 
 
-        const voteSnapshot =
+        const snapshot =
             await getDoc(
                 voteRef
             );
 
 
         if (
-            voteSnapshot.exists()
+            snapshot.exists()
         ) {
 
             localStorage.setItem(
@@ -384,10 +559,10 @@ async function checkIfVoted(pollId) {
                 "true"
             );
 
+
             return true;
 
         }
-
 
     } catch (error) {
 
@@ -400,87 +575,7 @@ async function checkIfVoted(pollId) {
 
 
     return false;
-}
 
-
-/* =====================================================
-   GET VOTE COUNTS
-===================================================== */
-
-async function getVoteCounts(
-    pollId,
-    optionCount
-) {
-
-    const counts =
-        new Array(
-            optionCount
-        ).fill(0);
-
-
-    try {
-
-        const votesRef =
-            collection(
-                db,
-                "votes"
-            );
-
-
-        const votesQuery =
-            query(
-                votesRef,
-                where(
-                    "pollId",
-                    "==",
-                    pollId
-                )
-            );
-
-
-        const snapshot =
-            await getDocs(
-                votesQuery
-            );
-
-
-        snapshot.forEach(
-            (voteDoc) => {
-
-                const data =
-                    voteDoc.data();
-
-
-                const index =
-                    Number(
-                        data.optionIndex
-                    );
-
-
-                if (
-                    index >= 0 &&
-                    index < optionCount
-                ) {
-
-                    counts[index]++;
-
-                }
-
-            }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Vote count error:",
-            error
-        );
-
-    }
-
-
-    return counts;
 }
 
 
@@ -494,6 +589,7 @@ async function submitVote(
 ) {
 
     if (
+        !poll ||
         !poll.options ||
         !poll.options[optionIndex]
     ) {
@@ -503,13 +599,11 @@ async function submitVote(
     }
 
 
-    const alreadyVoted =
+    if (
         await checkIfVoted(
             poll.id
-        );
-
-
-    if (alreadyVoted) {
+        )
+    ) {
 
         showMessage(
             "You already voted on this poll."
@@ -543,7 +637,10 @@ async function submitVote(
 
         await runTransaction(
             db,
-            async (transaction) => {
+
+            async (
+                transaction
+            ) => {
 
                 const existing =
                     await transaction.get(
@@ -579,9 +676,11 @@ async function submitVote(
                             serverTimestamp()
 
                     }
+
                 );
 
             }
+
         );
 
 
@@ -594,11 +693,6 @@ async function submitVote(
 
         showMessage(
             "Vote submitted successfully!"
-        );
-
-
-        await renderPoll(
-            poll
         );
 
 
@@ -621,7 +715,7 @@ async function submitVote(
 
 
 /* =====================================================
-   NO POLL
+   NO ACTIVE POLL
 ===================================================== */
 
 function showNoPoll() {
@@ -639,9 +733,11 @@ function showNoPoll() {
                 🗳️
             </div>
 
+
             <h2>
                 No Active Poll
             </h2>
+
 
             <p>
                 There is currently no active
@@ -653,7 +749,9 @@ function showNoPoll() {
     `;
 
 
-    if (totalVotesElement) {
+    if (
+        totalVotesElement
+    ) {
 
         totalVotesElement.textContent =
             "0";
@@ -667,7 +765,9 @@ function showNoPoll() {
    ERROR
 ===================================================== */
 
-function showError(message) {
+function showError(
+    message
+) {
 
     if (!pollContainer) {
         return;
@@ -675,7 +775,7 @@ function showError(message) {
 
 
     console.error(
-        "Skylark Poll:",
+        "Skylark Poll Error:",
         message
     );
 
@@ -688,15 +788,15 @@ function showError(message) {
                 ⚠️
             </div>
 
+
             <h2>
                 Unable to Load Poll
             </h2>
 
+
             <p>
-                ${escapeHTML(
-                    message ||
-                    "Please refresh the page."
-                )}
+                Please refresh the page
+                and try again.
             </p>
 
         </div>
@@ -710,7 +810,9 @@ function showError(message) {
    MESSAGE
 ===================================================== */
 
-function showMessage(message) {
+function showMessage(
+    message
+) {
 
     if (!pollMessage) {
         return;
@@ -734,7 +836,9 @@ function showMessage(message) {
                     "";
 
             },
+
             4000
+
         );
 
 }
@@ -744,7 +848,9 @@ function showMessage(message) {
    ESCAPE HTML
 ===================================================== */
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     return String(value)
 
@@ -773,4 +879,4 @@ function escapeHTML(value) {
             "&#039;"
         );
 
-           }
+}
