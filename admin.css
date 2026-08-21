@@ -1,0 +1,753 @@
+/* =====================================================
+   SKYLARK NETWORK
+   ADMIN PANEL
+   COMPLETE ADMIN.CSS
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(110, 70, 255, 0.16),
+            transparent 38%
+        ),
+        #08080d;
+    color: #ffffff;
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.container {
+    width: min(1100px, 92%);
+    margin: 0 auto;
+    padding: 40px 0 70px;
+}
+
+
+/* =====================================================
+   LOGIN SCREEN
+===================================================== */
+
+#loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+}
+
+
+.login-card {
+    width: min(440px, 100%);
+    padding: 42px 32px;
+    text-align: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.055),
+            rgba(255,255,255,0.018)
+        );
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+
+    box-shadow:
+        0 25px 80px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+
+    backdrop-filter: blur(18px);
+
+    animation:
+        cardIn 0.5s ease;
+}
+
+
+.login-icon {
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7657ff,
+            #4c35c9
+        );
+
+    font-size: 30px;
+
+    box-shadow:
+        0 10px 35px rgba(100,70,255,0.28);
+}
+
+
+.login-card h1 {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+
+.login-card p {
+    margin-top: 9px;
+    color: #9898a8;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   GOOGLE LOGIN
+===================================================== */
+
+#googleLogin {
+    width: 100%;
+
+    margin-top: 28px;
+    padding: 14px 18px;
+
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+
+    background: #ffffff;
+    color: #16161c;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+#googleLogin:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.25);
+}
+
+
+#googleLogin:active {
+    transform: scale(0.98);
+}
+
+
+#googleLogin:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+
+/* =====================================================
+   LOGIN MESSAGE
+===================================================== */
+
+#loginMessage {
+    min-height: 20px;
+
+    margin-top: 16px;
+
+    color: #9696a5;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   ADMIN PANEL
+===================================================== */
+
+#adminPanel {
+    display: none;
+}
+
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+
+.brand-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7657ff,
+            #4931c5
+        );
+
+    font-size: 23px;
+
+    box-shadow:
+        0 8px 30px rgba(100,70,255,0.22);
+}
+
+
+.brand h1 {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+
+.brand p {
+    margin-top: 2px;
+    color: #858594;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   ADMIN ACCOUNT
+===================================================== */
+
+.admin-account {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+#adminEmail {
+    max-width: 220px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: #a7a7b5;
+    font-size: 12px;
+}
+
+
+#logoutButton {
+    padding: 9px 14px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 9px;
+
+    background: rgba(255,255,255,0.035);
+    color: #ddddE8;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+#logoutButton:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.section {
+    margin-bottom: 28px;
+}
+
+
+.section-title {
+    margin-bottom: 13px;
+
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 850;
+}
+
+
+/* =====================================================
+   CREATE POLL CARD
+===================================================== */
+
+.create-card {
+    padding: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.045),
+            rgba(255,255,255,0.018)
+        );
+
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,0.18);
+
+    backdrop-filter: blur(14px);
+}
+
+
+.create-card label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #a9a9b8;
+
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+
+#pollQuestion,
+#pollOptions {
+    width: 100%;
+
+    margin-bottom: 18px;
+    padding: 13px 14px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 11px;
+
+    outline: none;
+
+    background: rgba(0,0,0,0.22);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+
+#pollQuestion:focus,
+#pollOptions:focus {
+    border-color: rgba(119,88,255,0.7);
+    background: rgba(0,0,0,0.3);
+}
+
+
+#pollOptions {
+    min-height: 130px;
+    resize: vertical;
+}
+
+
+#pollQuestion::placeholder,
+#pollOptions::placeholder {
+    color: #626272;
+}
+
+
+/* =====================================================
+   CREATE BUTTON
+===================================================== */
+
+#createPoll {
+    width: 100%;
+
+    padding: 13px 18px;
+
+    border: 0;
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7657ff,
+            #5539dc
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 850;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 25px rgba(100,70,255,0.2);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+#createPoll:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 13px 32px rgba(100,70,255,0.3);
+}
+
+
+#createPoll:active {
+    transform: scale(0.99);
+}
+
+
+#createPoll:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+
+/* =====================================================
+   POLL LIST
+===================================================== */
+
+#adminPolls {
+    display: grid;
+    gap: 14px;
+}
+
+
+/* =====================================================
+   POLL CARD
+===================================================== */
+
+.admin-poll-card {
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.045),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 17px;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,0.16);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.admin-poll-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(255,255,255,0.11);
+}
+
+
+/* =====================================================
+   POLL HEADER
+===================================================== */
+
+.admin-poll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+
+.admin-poll-header h3 {
+    margin-top: 7px;
+
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+
+.poll-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    background: rgba(100,80,255,0.1);
+    color: #9d8cff;
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.poll-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    flex-shrink: 0;
+}
+
+
+.close-poll,
+.delete-poll {
+    padding: 8px 11px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 850;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.close-poll {
+    border: 1px solid rgba(255,190,80,0.15);
+
+    background: rgba(255,180,70,0.05);
+    color: #ffc36b;
+}
+
+
+.close-poll:hover {
+    background: rgba(255,180,70,0.12);
+    transform: translateY(-1px);
+}
+
+
+.delete-poll {
+    border: 1px solid rgba(255,80,100,0.12);
+
+    background: rgba(255,70,90,0.045);
+    color: #ff8292;
+}
+
+
+.delete-poll:hover {
+    background: rgba(255,70,90,0.1);
+    transform: translateY(-1px);
+}
+
+
+.close-poll:disabled,
+.delete-poll:disabled {
+    opacity: 0.45;
+    cursor: wait;
+}
+
+
+/* =====================================================
+   OPTIONS
+===================================================== */
+
+.admin-options {
+    display: grid;
+    gap: 7px;
+}
+
+
+.admin-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 10px 12px;
+
+    border: 1px solid rgba(255,255,255,0.045);
+    border-radius: 9px;
+
+    background: rgba(0,0,0,0.18);
+
+    color: #bdbdca;
+
+    font-size: 12px;
+}
+
+
+.admin-option strong {
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   TOTAL
+===================================================== */
+
+.admin-total {
+    margin-top: 15px;
+
+    color: #777787;
+
+    font-size: 11px;
+}
+
+
+.admin-total strong {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty-polls {
+    padding: 45px 20px;
+
+    text-align: center;
+
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 17px;
+
+    background: rgba(255,255,255,0.015);
+}
+
+
+.empty-polls h3 {
+    font-size: 16px;
+}
+
+
+.empty-polls p {
+    margin-top: 7px;
+
+    color: #777787;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 650px) {
+
+    .container {
+        width: 94%;
+        padding-top: 25px;
+    }
+
+
+    .admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .admin-account {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+
+    #adminEmail {
+        max-width: 190px;
+    }
+
+
+    .admin-poll-header {
+        flex-direction: column;
+    }
+
+
+    .poll-actions {
+        width: 100%;
+    }
+
+
+    .close-poll,
+    .delete-poll {
+        flex: 1;
+    }
+
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes cardIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
