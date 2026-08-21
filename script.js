@@ -12,15 +12,17 @@ import {
     collection,
     onSnapshot,
     doc,
+    getDoc,
     getDocs,
     query,
     where,
-    runTransaction
+    runTransaction,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 /* =====================================================
-   FIREBASE CONFIG
+   FIREBASE
 ===================================================== */
 
 const firebaseConfig = {
@@ -32,13 +34,7 @@ const firebaseConfig = {
     appId: "1:877610328379:web:8d0a892bad042875de971e"
 };
 
-
-/* =====================================================
-   INITIALIZE FIREBASE
-===================================================== */
-
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 
@@ -57,37 +53,35 @@ const totalVotesElement =
 
 
 /* =====================================================
-   VOTE ID
+   PLAYER ID
 ===================================================== */
 
 function getPlayerId() {
 
-    let playerId =
+    let id =
         localStorage.getItem(
             "skylark_player_id"
         );
 
-    if (!playerId) {
+    if (!id) {
 
-        playerId =
+        id =
             crypto.randomUUID();
 
         localStorage.setItem(
             "skylark_player_id",
-            playerId
+            id
         );
-
     }
 
-    return playerId;
+    return id;
 }
-
 
 const playerId = getPlayerId();
 
 
 /* =====================================================
-   LOAD POLLS
+   LOAD ACTIVE POLL
 ===================================================== */
 
 const pollsRef =
@@ -104,24 +98,19 @@ onSnapshot(
 
         let activePoll = null;
 
-
         snapshot.forEach(
             (pollDoc) => {
 
                 const data =
                     pollDoc.data();
 
-
                 if (
                     data.active === true
                 ) {
 
                     activePoll = {
-
                         id: pollDoc.id,
-
                         ...data
-
                     };
 
                 }
@@ -148,11 +137,13 @@ onSnapshot(
     (error) => {
 
         console.error(
-            "Poll loading error:",
+            "Firestore poll error:",
             error
         );
 
-        showError();
+        showError(
+            error.message
+        );
 
     }
 );
@@ -162,9 +153,7 @@ onSnapshot(
    RENDER POLL
 ===================================================== */
 
-async function renderPoll(
-    poll
-) {
+async function renderPoll(poll) {
 
     if (!pollContainer) {
         return;
@@ -172,22 +161,21 @@ async function renderPoll(
 
 
     const voted =
-        await hasVoted(
+        await checkIfVoted(
             poll.id
         );
 
 
-    const voteCounts =
+    const counts =
         await getVoteCounts(
             poll.id,
             poll.options.length
         );
 
 
-    const totalVotes =
-        voteCounts.reduce(
-            (total, count) =>
-                total + count,
+    const total =
+        counts.reduce(
+            (a, b) => a + b,
             0
         );
 
@@ -195,7 +183,7 @@ async function renderPoll(
     if (totalVotesElement) {
 
         totalVotesElement.textContent =
-            totalVotes;
+            total;
 
     }
 
@@ -207,16 +195,14 @@ async function renderPoll(
         (option, index) => {
 
             const votes =
-                voteCounts[index] || 0;
+                counts[index] || 0;
 
 
-            const percentage =
-                totalVotes === 0
+            const percent =
+                total === 0
                     ? 0
                     : Math.round(
-                        (votes /
-                        totalVotes) *
-                        100
+                        votes / total * 100
                     );
 
 
@@ -224,16 +210,14 @@ async function renderPoll(
 
                 <button
                     class="poll-option"
-                    data-option-index="${index}"
+                    data-index="${index}"
                     ${voted ? "disabled" : ""}
                 >
 
                     <div class="option-top">
 
                         <span class="option-name">
-                            ${escapeHTML(
-                                option.text
-                            )}
+                            ${escapeHTML(option.text)}
                         </span>
 
                         <span class="option-votes">
@@ -247,14 +231,14 @@ async function renderPoll(
 
                         <div
                             class="option-progress"
-                            style="width:${percentage}%"
+                            style="width:${percent}%"
                         ></div>
 
                     </div>
 
 
                     <div class="option-percent">
-                        ${percentage}%
+                        ${percent}%
                     </div>
 
                 </button>
@@ -279,11 +263,7 @@ async function renderPoll(
 
 
             <h1 class="poll-question">
-
-                ${escapeHTML(
-                    poll.question
-                )}
-
+                ${escapeHTML(poll.question)}
             </h1>
 
 
@@ -308,7 +288,7 @@ async function renderPoll(
             <div class="poll-total">
 
                 <strong>
-                    ${totalVotes}
+                    ${total}
                 </strong>
 
                 total votes
@@ -320,26 +300,25 @@ async function renderPoll(
     `;
 
 
-    const optionButtons =
+    const buttons =
         pollContainer.querySelectorAll(
             ".poll-option"
         );
 
 
-    optionButtons.forEach(
+    buttons.forEach(
         (button) => {
 
             button.addEventListener(
                 "click",
-                () => {
+                async () => {
 
                     const index =
                         Number(
-                            button.dataset.optionIndex
+                            button.dataset.index
                         );
 
-
-                    vote(
+                    await submitVote(
                         poll,
                         index
                     );
@@ -350,6 +329,77 @@ async function renderPoll(
         }
     );
 
+}
+
+
+/* =====================================================
+   CHECK IF PLAYER VOTED
+===================================================== */
+
+async function checkIfVoted(pollId) {
+
+    const localKey =
+        "skylark_voted_" +
+        pollId;
+
+    if (
+        localStorage.getItem(
+            localKey
+        ) === "true"
+    ) {
+
+        return true;
+
+    }
+
+
+    const voteId =
+        pollId +
+        "_" +
+        playerId;
+
+
+    try {
+
+        const voteRef =
+            doc(
+                db,
+                "votes",
+                voteId
+            );
+
+
+        const voteSnapshot =
+            await getDoc(
+                voteRef
+            );
+
+
+        if (
+            voteSnapshot.exists()
+        ) {
+
+            localStorage.setItem(
+                localKey,
+                "true"
+            );
+
+            return true;
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Vote check error:",
+            error
+        );
+
+    }
+
+
+    return false;
 }
 
 
@@ -431,21 +481,19 @@ async function getVoteCounts(
 
 
     return counts;
-
 }
 
 
 /* =====================================================
-   VOTE
+   SUBMIT VOTE
 ===================================================== */
 
-async function vote(
+async function submitVote(
     poll,
     optionIndex
 ) {
 
     if (
-        !poll ||
         !poll.options ||
         !poll.options[optionIndex]
     ) {
@@ -455,14 +503,16 @@ async function vote(
     }
 
 
-    if (
-        await hasVoted(
+    const alreadyVoted =
+        await checkIfVoted(
             poll.id
-        )
-    ) {
+        );
+
+
+    if (alreadyVoted) {
 
         showMessage(
-            "You have already voted on this poll."
+            "You already voted on this poll."
         );
 
         return;
@@ -470,48 +520,43 @@ async function vote(
     }
 
 
-    try {
+    showMessage(
+        "Submitting vote..."
+    );
 
-        showMessage(
-            "Submitting your vote..."
+
+    const voteId =
+        poll.id +
+        "_" +
+        playerId;
+
+
+    const voteRef =
+        doc(
+            db,
+            "votes",
+            voteId
         );
 
 
-        /*
-         * Each player gets one vote document
-         * per poll.
-         */
-
-        const voteId =
-            poll.id +
-            "_" +
-            playerId;
-
-
-        const voteRef =
-            doc(
-                db,
-                "votes",
-                voteId
-            );
-
+    try {
 
         await runTransaction(
             db,
             async (transaction) => {
 
-                const existingVote =
+                const existing =
                     await transaction.get(
                         voteRef
                     );
 
 
                 if (
-                    existingVote.exists()
+                    existing.exists()
                 ) {
 
                     throw new Error(
-                        "You have already voted on this poll."
+                        "You already voted on this poll."
                     );
 
                 }
@@ -527,8 +572,11 @@ async function vote(
                         optionIndex:
                             optionIndex,
 
+                        playerId:
+                            playerId,
+
                         createdAt:
-                            new Date()
+                            serverTimestamp()
 
                     }
                 );
@@ -538,9 +586,8 @@ async function vote(
 
 
         localStorage.setItem(
-            getVoteKey(
-                poll.id
-            ),
+            "skylark_voted_" +
+            poll.id,
             "true"
         );
 
@@ -550,11 +597,6 @@ async function vote(
         );
 
 
-        /*
-         * Refresh the poll immediately
-         * so the player sees the result.
-         */
-
         await renderPoll(
             poll
         );
@@ -563,30 +605,14 @@ async function vote(
     } catch (error) {
 
         console.error(
-            "Vote error:",
+            "Vote submission error:",
             error
         );
 
 
-        if (
-            error.message.includes(
-                "already voted"
-            )
-        ) {
-
-            localStorage.setItem(
-                getVoteKey(
-                    poll.id
-                ),
-                "true"
-            );
-
-        }
-
-
         showMessage(
             error.message ||
-            "Unable to submit vote."
+            "Vote failed."
         );
 
     }
@@ -595,89 +621,7 @@ async function vote(
 
 
 /* =====================================================
-   LOCAL VOTE STORAGE
-===================================================== */
-
-function getVoteKey(
-    pollId
-) {
-
-    return (
-        "skylark_poll_voted_" +
-        pollId
-    );
-
-}
-
-
-function hasLocalVoted(
-    pollId
-) {
-
-    return (
-        localStorage.getItem(
-            getVoteKey(
-                pollId
-            )
-        ) === "true"
-    );
-
-}
-
-
-/* =====================================================
-   CHECK FIRESTORE VOTE
-===================================================== */
-
-async function hasVoted(
-    pollId
-) {
-
-    if (
-        hasLocalVoted(
-            pollId
-        )
-    ) {
-
-        return true;
-
-    }
-
-
-    try {
-
-        const voteId =
-            pollId +
-            "_" +
-            playerId;
-
-
-        const voteRef =
-            doc(
-                db,
-                "votes",
-                voteId
-            );
-
-
-        /*
-         * We don't need another request here.
-         * The local ID protects the normal user flow.
-         */
-
-        return false;
-
-    } catch {
-
-        return false;
-
-    }
-
-}
-
-
-/* =====================================================
-   NO ACTIVE POLL
+   NO POLL
 ===================================================== */
 
 function showNoPoll() {
@@ -695,15 +639,13 @@ function showNoPoll() {
                 🗳️
             </div>
 
-
             <h2>
                 No Active Poll
             </h2>
 
-
             <p>
-                There is currently no active Skylark poll.
-                Check back later!
+                There is currently no active
+                Skylark poll.
             </p>
 
         </div>
@@ -725,11 +667,17 @@ function showNoPoll() {
    ERROR
 ===================================================== */
 
-function showError() {
+function showError(message) {
 
     if (!pollContainer) {
         return;
     }
+
+
+    console.error(
+        "Skylark Poll:",
+        message
+    );
 
 
     pollContainer.innerHTML = `
@@ -740,14 +688,15 @@ function showError() {
                 ⚠️
             </div>
 
-
             <h2>
                 Unable to Load Poll
             </h2>
 
-
             <p>
-                Please refresh the page and try again.
+                ${escapeHTML(
+                    message ||
+                    "Please refresh the page."
+                )}
             </p>
 
         </div>
@@ -761,9 +710,7 @@ function showError() {
    MESSAGE
 ===================================================== */
 
-function showMessage(
-    message
-) {
+function showMessage(message) {
 
     if (!pollMessage) {
         return;
@@ -775,11 +722,11 @@ function showMessage(
 
 
     clearTimeout(
-        showMessage.timeout
+        showMessage.timer
     );
 
 
-    showMessage.timeout =
+    showMessage.timer =
         setTimeout(
             () => {
 
@@ -794,12 +741,10 @@ function showMessage(
 
 
 /* =====================================================
-   HTML ESCAPE
+   ESCAPE HTML
 ===================================================== */
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
     return String(value)
 
@@ -828,4 +773,4 @@ function escapeHTML(
             "&#039;"
         );
 
-    }
+           }
