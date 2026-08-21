@@ -12,6 +12,9 @@ import {
     collection,
     onSnapshot,
     doc,
+    getDocs,
+    query,
+    where,
     runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -34,11 +37,9 @@ const firebaseConfig = {
    INITIALIZE FIREBASE
 ===================================================== */
 
-const app =
-    initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const db =
-    getFirestore(app);
+const db = getFirestore(app);
 
 
 /* =====================================================
@@ -56,7 +57,37 @@ const totalVotesElement =
 
 
 /* =====================================================
-   LOAD ACTIVE POLL
+   VOTE ID
+===================================================== */
+
+function getPlayerId() {
+
+    let playerId =
+        localStorage.getItem(
+            "skylark_player_id"
+        );
+
+    if (!playerId) {
+
+        playerId =
+            crypto.randomUUID();
+
+        localStorage.setItem(
+            "skylark_player_id",
+            playerId
+        );
+
+    }
+
+    return playerId;
+}
+
+
+const playerId = getPlayerId();
+
+
+/* =====================================================
+   LOAD POLLS
 ===================================================== */
 
 const pollsRef =
@@ -68,7 +99,8 @@ const pollsRef =
 
 onSnapshot(
     pollsRef,
-    (snapshot) => {
+
+    async (snapshot) => {
 
         let activePoll = null;
 
@@ -107,16 +139,18 @@ onSnapshot(
         }
 
 
-        renderPoll(activePoll);
+        await renderPoll(
+            activePoll
+        );
 
     },
+
     (error) => {
 
         console.error(
             "Poll loading error:",
             error
         );
-
 
         showError();
 
@@ -125,10 +159,12 @@ onSnapshot(
 
 
 /* =====================================================
-   SHOW POLL
+   RENDER POLL
 ===================================================== */
 
-function renderPoll(poll) {
+async function renderPoll(
+    poll
+) {
 
     if (!pollContainer) {
         return;
@@ -136,16 +172,22 @@ function renderPoll(poll) {
 
 
     const voted =
-        hasVoted(poll.id);
+        await hasVoted(
+            poll.id
+        );
+
+
+    const voteCounts =
+        await getVoteCounts(
+            poll.id,
+            poll.options.length
+        );
 
 
     const totalVotes =
-        poll.options.reduce(
-            (total, option) =>
-                total +
-                Number(
-                    option.votes || 0
-                ),
+        voteCounts.reduce(
+            (total, count) =>
+                total + count,
             0
         );
 
@@ -165,9 +207,7 @@ function renderPoll(poll) {
         (option, index) => {
 
             const votes =
-                Number(
-                    option.votes || 0
-                );
+                voteCounts[index] || 0;
 
 
             const percentage =
@@ -191,18 +231,13 @@ function renderPoll(poll) {
                     <div class="option-top">
 
                         <span class="option-name">
-
                             ${escapeHTML(
                                 option.text
                             )}
-
                         </span>
 
                         <span class="option-votes">
-
-                            ${votes}
-                            votes
-
+                            ${votes} votes
                         </span>
 
                     </div>
@@ -219,9 +254,7 @@ function renderPoll(poll) {
 
 
                     <div class="option-percent">
-
                         ${percentage}%
-
                     </div>
 
                 </button>
@@ -256,9 +289,10 @@ function renderPoll(poll) {
 
             <p class="poll-description">
 
-                ${voted
-                    ? "You have already voted on this poll."
-                    : "Choose one option to cast your vote."
+                ${
+                    voted
+                        ? "You have already voted on this poll."
+                        : "Choose one option to cast your vote."
                 }
 
             </p>
@@ -320,6 +354,88 @@ function renderPoll(poll) {
 
 
 /* =====================================================
+   GET VOTE COUNTS
+===================================================== */
+
+async function getVoteCounts(
+    pollId,
+    optionCount
+) {
+
+    const counts =
+        new Array(
+            optionCount
+        ).fill(0);
+
+
+    try {
+
+        const votesRef =
+            collection(
+                db,
+                "votes"
+            );
+
+
+        const votesQuery =
+            query(
+                votesRef,
+                where(
+                    "pollId",
+                    "==",
+                    pollId
+                )
+            );
+
+
+        const snapshot =
+            await getDocs(
+                votesQuery
+            );
+
+
+        snapshot.forEach(
+            (voteDoc) => {
+
+                const data =
+                    voteDoc.data();
+
+
+                const index =
+                    Number(
+                        data.optionIndex
+                    );
+
+
+                if (
+                    index >= 0 &&
+                    index < optionCount
+                ) {
+
+                    counts[index]++;
+
+                }
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Vote count error:",
+            error
+        );
+
+    }
+
+
+    return counts;
+
+}
+
+
+/* =====================================================
    VOTE
 ===================================================== */
 
@@ -328,11 +444,11 @@ async function vote(
     optionIndex
 ) {
 
-    if (hasVoted(poll.id)) {
-
-        showMessage(
-            "You have already voted on this poll."
-        );
+    if (
+        !poll ||
+        !poll.options ||
+        !poll.options[optionIndex]
+    ) {
 
         return;
 
@@ -340,9 +456,14 @@ async function vote(
 
 
     if (
-        !poll.options ||
-        !poll.options[optionIndex]
+        await hasVoted(
+            poll.id
+        )
     ) {
+
+        showMessage(
+            "You have already voted on this poll."
+        );
 
         return;
 
@@ -356,11 +477,22 @@ async function vote(
         );
 
 
-        const pollRef =
+        /*
+         * Each player gets one vote document
+         * per poll.
+         */
+
+        const voteId =
+            poll.id +
+            "_" +
+            playerId;
+
+
+        const voteRef =
             doc(
                 db,
-                "polls",
-                poll.id
+                "votes",
+                voteId
             );
 
 
@@ -368,71 +500,36 @@ async function vote(
             db,
             async (transaction) => {
 
-                const pollSnapshot =
+                const existingVote =
                     await transaction.get(
-                        pollRef
+                        voteRef
                     );
-
-
-                if (!pollSnapshot.exists()) {
-
-                    throw new Error(
-                        "Poll no longer exists."
-                    );
-
-                }
-
-
-                const currentPoll =
-                    pollSnapshot.data();
 
 
                 if (
-                    currentPoll.active !== true
+                    existingVote.exists()
                 ) {
 
                     throw new Error(
-                        "This poll is closed."
+                        "You have already voted on this poll."
                     );
 
                 }
 
 
-                const updatedOptions =
-                    currentPoll.options.map(
-                        (option, index) => {
-
-                            if (
-                                index ===
-                                optionIndex
-                            ) {
-
-                                return {
-
-                                    ...option,
-
-                                    votes:
-                                        Number(
-                                            option.votes ||
-                                            0
-                                        ) + 1
-
-                                };
-
-                            }
-
-
-                            return option;
-
-                        }
-                    );
-
-
-                transaction.update(
-                    pollRef,
+                transaction.set(
+                    voteRef,
                     {
-                        options:
-                            updatedOptions
+
+                        pollId:
+                            poll.id,
+
+                        optionIndex:
+                            optionIndex,
+
+                        createdAt:
+                            new Date()
+
                     }
                 );
 
@@ -440,8 +537,11 @@ async function vote(
         );
 
 
-        markVoted(
-            poll.id
+        localStorage.setItem(
+            getVoteKey(
+                poll.id
+            ),
+            "true"
         );
 
 
@@ -450,9 +550,38 @@ async function vote(
         );
 
 
+        /*
+         * Refresh the poll immediately
+         * so the player sees the result.
+         */
+
+        await renderPoll(
+            poll
+        );
+
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Vote error:",
+            error
+        );
+
+
+        if (
+            error.message.includes(
+                "already voted"
+            )
+        ) {
+
+            localStorage.setItem(
+                getVoteKey(
+                    poll.id
+                ),
+                "true"
+            );
+
+        }
 
 
         showMessage(
@@ -466,7 +595,7 @@ async function vote(
 
 
 /* =====================================================
-   VOTE STORAGE
+   LOCAL VOTE STORAGE
 ===================================================== */
 
 function getVoteKey(
@@ -481,7 +610,7 @@ function getVoteKey(
 }
 
 
-function hasVoted(
+function hasLocalVoted(
     pollId
 ) {
 
@@ -496,16 +625,53 @@ function hasVoted(
 }
 
 
-function markVoted(
+/* =====================================================
+   CHECK FIRESTORE VOTE
+===================================================== */
+
+async function hasVoted(
     pollId
 ) {
 
-    localStorage.setItem(
-        getVoteKey(
+    if (
+        hasLocalVoted(
             pollId
-        ),
-        "true"
-    );
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    try {
+
+        const voteId =
+            pollId +
+            "_" +
+            playerId;
+
+
+        const voteRef =
+            doc(
+                db,
+                "votes",
+                voteId
+            );
+
+
+        /*
+         * We don't need another request here.
+         * The local ID protects the normal user flow.
+         */
+
+        return false;
+
+    } catch {
+
+        return false;
+
+    }
 
 }
 
@@ -662,4 +828,4 @@ function escapeHTML(
             "&#039;"
         );
 
-}
+    }
