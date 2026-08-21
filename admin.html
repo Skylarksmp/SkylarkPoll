@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Skylark Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<div id="loginScreen">
+
+    <div class="login-card">
+
+        <div class="login-icon">
+            🛡️
+        </div>
+
+        <h1>
+            SKYLARK NETWORK
+        </h1>
+
+        <p>
+            Admin Panel
+            <br>
+            Sign in with an authorized Google account
+            to manage Skylark polls.
+        </p>
+
+        <button
+            id="googleLogin"
+            type="button"
+        >
+            <span style="margin-right:8px;">
+                G
+            </span>
+
+            Continue with Google
+        </button>
+
+        <div id="loginMessage">
+            Firebase loading...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ADMIN PANEL
+===================================================== -->
+
+<div id="adminPanel">
+
+    <main class="container">
+
+        <!-- HEADER -->
+
+        <header class="admin-header">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    🛡️
+                </div>
+
+                <div>
+
+                    <h1>
+                        SKYLARK ADMIN
+                    </h1>
+
+                    <p>
+                        Poll Management
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-account">
+
+                <span id="adminEmail">
+                    Not signed in
+                </span>
+
+                <button
+                    id="logoutButton"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- CREATE POLL -->
+
+        <section class="section">
+
+            <div class="section-title">
+                ADMIN ACCESS
+            </div>
+
+            <div class="create-card">
+
+                <div class="login-icon">
+                    🗳️
+                </div>
+
+                <h2>
+                    NEW POLL
+                </h2>
+
+                <p>
+                    Create a Poll
+                    <br>
+                    Ask the Skylark community a question
+                    and let everyone vote.
+                </p>
+
+
+                <label for="pollQuestion">
+                    Poll Question
+                </label>
+
+                <input
+                    id="pollQuestion"
+                    type="text"
+                    placeholder="What should Skylark add next?"
+                >
+
+
+                <label for="pollOptions">
+                    Voting Options
+                </label>
+
+                <textarea
+                    id="pollOptions"
+                    placeholder="New Updates&#10;No Updates"
+                ></textarea>
+
+
+                <small>
+                    💡 Put each option on a new line.
+                    Minimum 2 options.
+                </small>
+
+
+                <button
+                    id="createPoll"
+                    type="button"
+                >
+                    Create Poll →
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMMUNITY -->
+
+        <section class="section">
+
+            <div class="section-title">
+                COMMUNITY
+            </div>
+
+
+            <div class="create-card">
+
+                <h2>
+                    Your Polls
+                </h2>
+
+                <p>
+                    Monitor and manage your community polls.
+                </p>
+
+
+                <!-- POLL LIST -->
+
+                <div id="adminPolls">
+
+                    <div class="loading">
+                        Loading polls...
+                    </div>
+
+                </div>
+
+
+                <!-- CLEAR CLOSED POLLS -->
+
+                <button
+                    id="clearClosedPolls"
+                    type="button"
+                    style="
+                        display:block;
+                        width:100%;
+                        margin-top:20px;
+                        padding:14px 16px;
+                        border:none;
+                        border-radius:12px;
+                        background:#dc3545;
+                        color:white;
+                        font-size:13px;
+                        font-weight:800;
+                        cursor:pointer;
+                    "
+                >
+                    🗑️ Clear All Closed Polls
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- BACK -->
+
+        <a
+            href="index.html"
+            class="back-link"
+        >
+            ← Return to Skylark Poll
+        </a>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+            © 2026 Skylark Network
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="admin.js"
+></script>
+
+</body>
+
+</html>
